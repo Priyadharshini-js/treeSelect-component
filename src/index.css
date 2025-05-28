@@ -4,3 +4,13 @@ body {
   overflow-x: hidden;
   overflow-y: scroll;
 }
+
+li {
+  font-size: 14px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.row-15>* {
+  margin-bottom: 1.5rem;
+}

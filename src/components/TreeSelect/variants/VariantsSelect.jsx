@@ -9,7 +9,8 @@ const VariantsSelect = () => {
                 placeholder="Please select"
                 label={'Variants'}
                 multiple={false}
-                data={treeData.variants_selection} />
+                data={treeData.variants_selection}
+                 />
         </>
     )
 }

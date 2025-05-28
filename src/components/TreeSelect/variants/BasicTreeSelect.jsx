@@ -1,6 +1,7 @@
 import React from 'react'
 import TreeSelectBase from '../TreeSelectBase'
 import { treeData } from '../config/treeData'
+import { treeSelectPresets } from '../config/treeSelectProps'
 
 const BasicTreeSelect = () => {
     const handleChange = (value) => {
@@ -9,8 +10,7 @@ const BasicTreeSelect = () => {
 
     return (
         <TreeSelectBase
-            placeholder="Please select"
-            multiple={false}
+            config={treeSelectPresets.searchable}
             onChange={handleChange}
             label={"Basic"}
             data={treeData.basic_selection}

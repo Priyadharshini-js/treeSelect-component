@@ -4,10 +4,12 @@ export const treeData = {
         {
             value: 'parent 1',
             title: 'parent 1',
+            iconType: 'faCaretDown',
             children: [
                 {
                     value: 'parent 1-0',
                     title: 'parent 1-0',
+                    iconType: 'faCaretDown',
                     children: [
                         {
                             value: 'leaf1',
@@ -38,6 +40,7 @@ export const treeData = {
                 {
                     value: 'parent 1-1',
                     title: 'parent 1-1',
+                    iconType: 'faCaretDown',
                     children: [
                         {
                             value: 'leaf11',
@@ -52,10 +55,12 @@ export const treeData = {
         {
             value: 'parent 1',
             title: 'parent 1',
+            iconType: 'faCaretDown',
             children: [
                 {
                     value: 'parent 1-0',
                     title: 'parent 1-0',
+                    iconType: 'faCaretDown',
                     children: [
                         {
                             value: 'leaf1',
@@ -70,6 +75,7 @@ export const treeData = {
                 {
                     value: 'parent 1-1',
                     title: 'parent 1-1',
+                    iconType: 'faCaretDown',
                     children: [
                         {
                             value: 'sss',
@@ -84,6 +90,7 @@ export const treeData = {
         {
             title: 'Node1',
             value: '0-0',
+            iconType: 'faCaretDown',
             children: [
                 {
                     title: 'Child Node1',
@@ -105,6 +112,7 @@ export const treeData = {
             title: 'Node1',
             value: '0-0',
             key: '0-0',
+            iconType: 'faCaretDown',
             children: [
                 {
                     title: 'Child Node1',
@@ -117,6 +125,7 @@ export const treeData = {
             title: 'Node2',
             value: '0-1',
             key: '0-1',
+            iconType: 'faCaretDown',
             children: [
                 {
                     title: 'Child Node3',
@@ -178,10 +187,12 @@ export const treeData = {
         {
             value: 'parent 1',
             title: 'parent 1',
+            iconType: 'faCaretDown',
             children: [
                 {
                     value: 'parent 1-0',
                     title: 'parent 1-0',
+                    iconType: 'faCaretDown',
                     children: [
                         {
                             value: 'leaf1',
@@ -196,6 +207,7 @@ export const treeData = {
                 {
                     value: 'parent 1-1',
                     title: 'parent 1-1',
+                    iconType: 'faCaretDown',
                     children: [
                         {
                             value: 'leaf3',
@@ -210,6 +222,7 @@ export const treeData = {
         {
             title: 'Parent 1',
             value: 'parent1',
+            iconType: 'faCaretDown',
             children: [
                 {
                     title: 'Child 1-1',
@@ -224,6 +237,7 @@ export const treeData = {
         {
             title: 'Parent 2',
             value: 'parent2',
+            iconType: 'faCaretDown',
             children: [
                 {
                     title: 'Child 2-1',
@@ -240,10 +254,12 @@ export const treeData = {
         {
             value: 'parent 1',
             title: 'parent 1',
+            iconType: 'faCaretDown',
             children: [
                 {
                     value: 'parent 1-0',
                     title: 'parent 1-0',
+                    iconType: 'faCaretDown',
                     children: [
                         {
                             value: 'leaf1',
@@ -258,6 +274,7 @@ export const treeData = {
                 {
                     value: 'parent 1-1',
                     title: 'parent 1-1',
+                    iconType: 'faCaretDown',
                     children: [
                         {
                             value: 'sss',
@@ -268,8 +285,7 @@ export const treeData = {
             ],
         },
     ],
-    async_loading_selection: [{}],
-    variants_selection: [{}],
-    status_selection: [{}],
-
+    async_loading_selection: [],
+    variants_selection: [],
+    status_selection: [],
 };

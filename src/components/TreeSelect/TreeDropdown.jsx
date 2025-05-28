@@ -1,7 +1,7 @@
 import React from 'react'
 import TreeOption from './TreeOption'
 
-const TreeDropdown = ({ data, selected, onSelect, multiple }) => {
+const TreeDropdown = ({ data, selected, onSelect, treeIcon, renderIcon, treeCheckable, multiple }) => {
     return (
         <ul className="tree-dropdown">
             {data.map((item) => (
@@ -11,6 +11,9 @@ const TreeDropdown = ({ data, selected, onSelect, multiple }) => {
                     selected={selected}
                     onSelect={onSelect}
                     multiple={multiple}
+                    treeIcon={treeIcon}
+                    renderIcon={renderIcon}
+                    treeCheckable={treeCheckable}
                 />
             ))}
         </ul>

@@ -1,13 +1,13 @@
 import React from 'react'
 import TreeSelectBase from '../TreeSelectBase'
 import { treeData } from '../config/treeData'
+import { treeSelectPresets } from '../config/treeSelectProps'
 
 const GenerateSelect = () => {
     return (
         <TreeSelectBase
-            placeholder='Please select'
+            config={treeSelectPresets.default}
             label={'Generate from tree data'}
-            multiple={false}
             data={treeData.generate_selection}
         />
     )

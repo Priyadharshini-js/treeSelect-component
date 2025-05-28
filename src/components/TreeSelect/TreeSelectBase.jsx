@@ -1,19 +1,49 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useMemo } from 'react'
 import TreeDropdown from './TreeDropdown'
 import { treeData } from './config/treeData'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faAngleDown, faSearch, faCaretDown, faFileImage } from '@fortawesome/free-solid-svg-icons'
+import { baseConfig } from './config/treeSelectProps'
 
-const TreeSelectBase = ({ placeholder = "Please select", multiple = false, disabled = false, onChange, label, data }) => {
+
+const TreeSelectBase = ({ config = {}, label, data }) => {
+    const containerRef = useRef(null);
+    const mergedConfig = { ...baseConfig, ...config };
+    const {
+        placeholder,
+        multiple,
+        onChange,
+        disabled,
+        showSearch,
+        allowClear,
+        size,
+        treeCheckable,
+        treeDefaultExpandAll,
+    } = mergedConfig;
+
     const [isOpen, setIsOpen] = useState(false);
     const [selected, setSelected] = useState(multiple ? [] : null);
-    const containerRef = useRef(null);
-    // const data = treeData.basic_selection;
 
     const treeDataSet = data || treeData.basic_selection;
+
+
+    const treeIcon = {
+        'faAngleDown': faAngleDown,
+        'faSearch': faSearch,
+        'faCaretDown': faCaretDown,
+        'faFileImage': faFileImage
+    }
+
+    const renderIcon = (type) => {
+        const icon = treeIcon[type];
+        return icon ? <FontAwesomeIcon icon={icon} /> : null;
+    };
 
 
     const toggleDropdown = () => {
         if (!disabled) setIsOpen(prev => !prev);
     };
+
 
     const handleSelect = (item) => {
         if (multiple) {
@@ -42,7 +72,7 @@ const TreeSelectBase = ({ placeholder = "Please select", multiple = false, disab
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    // Flatten all levels to match selected values with their titles
+    // Flatten all levels to match selected values with their titles, to retrieve all nested items for rendering selected labels and values.
     const flattenData = (nodes) => {
         return nodes.flatMap(node => {
             const children = node.children ? flattenData(node.children) : [];
@@ -50,21 +80,45 @@ const TreeSelectBase = ({ placeholder = "Please select", multiple = false, disab
         });
     };
 
-    const flatData = flattenData(treeDataSet);
+    // const flatData = flattenData(treeDataSet);
+    const flatData = useMemo(() => flattenData(treeDataSet), [treeDataSet]);
 
     const selectedLabel = multiple
-        ? flatData.filter(item => selected.includes(item.value)).map(i => (typeof i.title === 'string' ? i.title : '')).join(', ')
+        ? selected.map(value => {
+            const item = flatData.find(i => i.value === value);
+            return (
+                <span key={value} className="selected-pill">
+                    {item?.title}
+                    <span className="remove-pill ms-2" onClick={(e) => {
+                        e.stopPropagation(); // prevent dropdown from toggling
+                        setSelected(prev => {
+                            const updated = prev.filter(val => val !== item.value);
+                            onChange?.(updated);
+                            return updated;
+                        });
+                    }}>×</span>
+                </span>
+            )
+        })
         : flatData.find(item => item.value === selected)?.title || placeholder;
 
+
+    const isPlaceholderVisible =
+        (!multiple && !selected) || (multiple && selected.length === 0);
+
+
+
     return (
-        <div className='col-lg-6 col-md-6 col-sm-12'>
+        <div className='col-lg-6 col-md-12 col-sm-12'>
             <div className='card-section'>
                 <div className='card-body'>
                     <p>{label}</p>
                     <div ref={containerRef} className={`tree-select-container ${disabled ? 'disabled' : ''}`}>
-                        <div className="tree-select-input" onClick={toggleDropdown}>
-                            {selectedLabel || placeholder}
-                            <span className="arrow">{isOpen ? '▲' : '▼'}</span>
+                        <div className={`tree-select-input ${isPlaceholderVisible ? 'placeholder-color' : ''}`} onClick={toggleDropdown}>
+                            <div className="selected-content">
+                                {isPlaceholderVisible ? placeholder : selectedLabel}
+                            </div>
+                            <span className="arrow font-icons">{isOpen ? renderIcon('faSearch') : renderIcon('faAngleDown')}</span>
                         </div>
                         {isOpen && (
                             <TreeDropdown
@@ -72,6 +126,9 @@ const TreeSelectBase = ({ placeholder = "Please select", multiple = false, disab
                                 selected={selected}
                                 onSelect={handleSelect}
                                 multiple={multiple}
+                                treeIcon={treeIcon}
+                                renderIcon={renderIcon}
+                                treeCheckable={treeCheckable}
                             />
                         )}
                     </div>

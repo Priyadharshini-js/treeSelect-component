@@ -1,21 +1,8 @@
-.tree-sections.row-15>* {
-    margin-bottom: 1.5rem;
-}
-
-.tree-sections {
-    /* display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: 30px;
-    height: 70vh; */
-}
-
+/* //treeSelect card section css */
 .tree-sections .card-section {
-    border: 1px solid rgba(5, 5, 5, 0.06);
+    border: 1px solid rgb(5 5 5 / 12%);
     border-radius: 8px;
     padding: 42px 24px;
-    /* width: 30%; */
 }
 
 .tree-sections .card-section p {
@@ -23,20 +10,59 @@
     margin-top: 0;
 }
 
+/* //treeSelect container css */
 .tree-sections .tree-select-container {
     position: relative;
 }
 
+/* //treeSelect input css */
 .tree-sections .tree-select-input {
-    padding: 8px;
-    border: 1px solid rgba(5, 5, 5, 0.06);
+    padding: 6px 8px;
+    border: 1px solid #D0D0D0;
     border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    width: 100%;
+    overflow-y: auto;
+    max-height: 120px;
+    /* flex-wrap: wrap; */
+    display: flex;
+    /* gap: 5px; */
+    align-items: center;
+    justify-content: space-between;
 }
 
-.tree-select-input .arrow {
+.tree-sections .tree-select-input .selected-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    /* flex: 1; */
+    overflow-y: auto;
+}
+
+.tree-sections .tree-select-input.placeholder-color {
+    color: #b9b3b3;
+}
+
+.tree-sections .tree-select-input:hover {
+    border: 1px solid #4096ff;
+}
+
+.tree-sections .tree-select-input:active {
+    border: 1px solid #1677ff;
+}
+
+.tree-sections .font-icons svg {
     float: right;
+    color: #D0D0D0;
+    font-size: 14px;
 }
 
+.tree-sections .dropdown-icons svg {
+    font-size: 14px;
+}
+
+/* //treeSelect dropdown css */
 .tree-dropdown {
     position: absolute;
     top: 100%;
@@ -49,21 +75,38 @@
     z-index: 10;
 }
 
-.tree-option {
-    list-style: none;
-    padding: 6px 10px;
-    cursor: pointer;
+.tree-dropdown .tree-option .tree-option-label {
+    padding: 0px 6px;
+    border-radius: 3px;
+    margin: 6px 0px;
+    column-gap: 5px;
 }
 
-.tree-option.selected {
-    background-color: #e6f7ff;
+.tree-dropdown .tree-option.selected>.tree-option-label {
+    background-color: #4096ff24;
+    border-radius: 3px;
 }
 
-.tree-submenu {
-    padding-left: 15px;
+.tree-dropdown .tree-option.selected>.tree-option-label:hover,
+.tree-dropdown .tree-option .tree-submenu .tree-option.selected>.tree-option-label:hover {
+    background-color: #4096ff24;
 }
 
-.disabled .tree-select-input {
+.tree-dropdown .tree-option>.tree-option-label:hover,
+.tree-dropdown .tree-option .tree-submenu .tree-option>.tree-option-label:hover {
+    background-color: #6d6b6b24;
+}
+
+/* .disabled .tree-select-input {
     background-color: #f5f5f5;
     cursor: not-allowed;
+} */
+
+/* selected items css */
+.tree-select-container .selected-pill {
+    background-color: #58697d17;
+    padding: 3px 9px;
+    border-radius: 3px;
+    margin-right: 2px;
+    text-wrap: nowrap;
 }

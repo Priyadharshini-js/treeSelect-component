@@ -1,4 +1,4 @@
-const baseConfig = {
+export const baseConfig = {
     treeData: [],
     placeholder: "Please select", //string
     allowClear: false, //boolean
@@ -12,31 +12,10 @@ const baseConfig = {
     virtual: true, //boolean
     treeNodeFilterProp: "value", //string
     treeNodeLabelProp: "title", //string
-};
 
-export const treeSelectPresets = {
-    default: { ...baseConfig },
 
-    searchable: {
-        ...baseConfig,
-        showSearch: true,
-        placeholder: "Search and select",
-    },
+    // -------------------------
 
-    withCheckable: {
-        ...baseConfig,
-        treeCheckable: true,
-        showSearch: true,
-        placeholder: "Select multiple options",
-    },
-
-    disabled: {
-        ...baseConfig,
-        disabled: true,
-    },
-}
-
-export const treeSelectExtraProps = {
     value: undefined, //string
     defaultValue: undefined, //string
     open: undefined, //boolean
@@ -77,4 +56,27 @@ export const treeSelectExtraProps = {
     onSelect: undefined, //function
     onTreeExpand: undefined, //function
     onPopupScroll: undefined, //function
+};
+
+export const treeSelectPresets = {
+    default: {
+        ...baseConfig,
+        placeholder: "Please select",
+    },
+
+    searchable: {
+        ...baseConfig,
+        showSearch: true,
+    },
+
+    withCheckable: {
+        ...baseConfig,
+        treeCheckable: true,
+        showSearch: true,
+    },
+
+    disabled: {
+        ...baseConfig,
+        disabled: true,
+    },
 }
