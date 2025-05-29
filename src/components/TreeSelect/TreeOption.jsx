@@ -1,10 +1,10 @@
 import React from 'react'
 
-const TreeOption = ({ item, selected, onSelect, multiple, treeIcon, renderIcon, treeCheckable }) => {
+const TreeOption = ({ item, selected, onSelect, multiple, treeIcon, renderIcon, treeCheckable, expandedNodes, handleExpandCollapse }) => {
     const isChecked = multiple
         ? selected.includes(item.value)
         : selected === item.value;
-        // console.log("selected:", selected, "item.value:", item.value, "isChecked:", isChecked);
+    // console.log("selected:", selected, "item.value:", item.value, "isChecked:", isChecked);
 
 
     const handleClick = () => {
@@ -17,12 +17,17 @@ const TreeOption = ({ item, selected, onSelect, multiple, treeIcon, renderIcon, 
         <li className={`tree-option ${isChecked ? 'selected' : ''} ${item.value === 'no data' ? 'disabled' : ''}`}>
             <div className="tree-option-label dropdown-icons d-flex align-items-center" onClick={handleClick}>
                 {treeIcon && item.iconType && (
-                    <span className="me-2">{renderIcon(item.iconType)}</span>
+                    <span className="me-2" onClick={(e) => {
+                        e.stopPropagation(); // Prevent handleClick
+                        handleExpandCollapse(item.value);
+                    }}>
+                        {renderIcon(expandedNodes.has(item.value) ? 'faCaretDown' : 'faCaretRight')}
+                    </span>
                 )}
-                {treeCheckable && <input type="checkbox"  readOnly checked={isChecked} />}
+                {treeCheckable && <input type="checkbox" readOnly checked={isChecked} />}
                 {item.title}
             </div>
-            {item.children && item.children.length > 0 && (
+            {item.children && item.children.length > 0 && expandedNodes.has(item.value) && (
                 <ul className="tree-submenu">
                     {item.children.map((child) => (
                         <TreeOption
@@ -34,6 +39,8 @@ const TreeOption = ({ item, selected, onSelect, multiple, treeIcon, renderIcon, 
                             treeIcon={treeIcon}
                             renderIcon={renderIcon}
                             treeCheckable={treeCheckable}
+                            expandedNodes={expandedNodes}
+                            handleExpandCollapse={handleExpandCollapse}
                         />
                     ))}
                 </ul>

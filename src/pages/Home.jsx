@@ -15,24 +15,24 @@ const TreeSelectReusableComponent = () => {
                     <div className='tree-sections row row-15'>
                         {/* basic tree select */}
                         <TreeSelectBase
-                            config={treeSelectPresets.searchable}
+                            config={{ ...treeSelectPresets.searchable, treeDefaultExpandAll: true }}
                             label={"Basic"}
                             data={treeData.basic_selection} />
                         {/* multiple select */}
                         <TreeSelectBase
-                            config={{ ...treeSelectPresets.searchable, multiple: true }}
+                            config={{ ...treeSelectPresets.searchable, multiple: true, treeDefaultExpandAll: true }}
                             label={"Multiple Selection"}
                             data={treeData.multiple_selection}
                         />
                         {/* generate select */}
                         <TreeSelectBase
-                            config={treeSelectPresets.default}
+                            config={{ ...treeSelectPresets.default, treeDefaultExpandAll: true }}
                             label={'Generate from tree data'}
                             data={treeData.generate_selection}
                         />
                         {/* checkable */}
                         <TreeSelectBase
-                            config={{ ...treeSelectPresets.withCheckable, multiple: true }}
+                            config={{ ...treeSelectPresets.withCheckable, multiple: true, treeDefaultExpandAll: false }}
                             label={'Checkable'}
                             data={treeData.checkable_selection}
                         />
@@ -44,10 +44,10 @@ const TreeSelectReusableComponent = () => {
                             data={treeData.async_loading_selection} />
                         {/* show tree line */}
                         <TreeSelectBase
-                            placeholder='Please select'
+                            config={{ ...treeSelectPresets.default, treeDefaultExpandAll: false }}
                             label={'Show Tree Line'}
                             data={treeData.treeline_selction}
-                            multiple={false} />
+                        />
                         {/* placement */}
                         <TreeSelectBase
                             placeholder="Please select"
@@ -70,7 +70,7 @@ const TreeSelectReusableComponent = () => {
                         />
                         {/* max count */}
                         <TreeSelectBase
-                            config={{ ...treeSelectPresets.default, multiple: true }}
+                            config={{ ...treeSelectPresets.default, multiple: true, treeDefaultExpandAll: false }}
                             label={'Max Count'}
                             data={treeData.max_count_selection}
                         />

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react'
 import TreeDropdown from './TreeDropdown'
 import { treeData } from '../config/treeData'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faAngleDown, faSearch, faCaretDown, faFileImage } from '@fortawesome/free-solid-svg-icons'
+import { faAngleDown, faSearch, faCaretDown, faCaretRight, faFileImage } from '@fortawesome/free-solid-svg-icons'
 import { baseConfig } from '../config/treeSelectProps'
 
 
@@ -29,6 +29,7 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
 
     const [isOpen, setIsOpen] = useState(false);
     const [selected, setSelected] = useState(multiple ? [] : null);
+    const [expandedNodes, setExpandedNodes] = useState(new Set());
 
     const treeDataSet = data || treeData.basic_selection;
 
@@ -37,6 +38,7 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
         'faAngleDown': faAngleDown,
         'faSearch': faSearch,
         'faCaretDown': faCaretDown,
+        'faCaretRight': faCaretRight,
         'faFileImage': faFileImage,
     }
 
@@ -46,10 +48,33 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
     };
 
 
-    const toggleDropdown = () => {
-        if (!disabled) setIsOpen(prev => !prev);
-    };
+    // const toggleDropdown = () => {
+    //     if (!disabled) setIsOpen(prev => !prev);
+    // };
 
+    const toggleDropdown = () => {
+        if (!disabled) {
+            if (!isOpen) { // dropdown is about to open
+                if (treeDefaultExpandAll) {
+                    // expand all nodes - collect all parent node values
+                    const allParentValues = new Set();
+                    const findParents = (nodes) => {
+                        nodes.forEach(node => {
+                            if (node.children && node.children.length > 0) {
+                                allParentValues.add(node.value);
+                                findParents(node.children);
+                            }
+                        });
+                    };
+                    findParents(treeDataSet);
+                    setExpandedNodes(allParentValues);
+                } else {
+                    setExpandedNodes(new Set()); // collapse all nodes
+                }
+            }
+            setIsOpen(prev => !prev);
+        }
+    };
 
     const handleSelect = (item) => {
         if (multiple) {
@@ -65,6 +90,20 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
             setIsOpen(false);
             onChange?.(item.value);
         }
+    };
+
+    // const isExpanded = expandedNodes.has(item.value);
+
+    const handleExpandCollapse = (value) => {
+        setExpandedNodes(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(value)) {
+                newSet.delete(value);
+            } else {
+                newSet.add(value);
+            }
+            return newSet;
+        });
     };
 
     const handleClickOutside = (e) => {
@@ -138,6 +177,8 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
                     treeIcon={treeIcon}
                     renderIcon={renderIcon}
                     treeCheckable={treeCheckable}
+                    expandedNodes={expandedNodes}
+                    handleExpandCollapse={handleExpandCollapse}
                 />
             )}
         </div>
@@ -169,10 +210,17 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
                     treeIcon={treeIcon}
                     renderIcon={renderIcon}
                     treeCheckable={treeCheckable}
+                    expandedNodes={expandedNodes}
+                    handleExpandCollapse={handleExpandCollapse}
+
                 />
             )}
         </div>
     );
+
+    const renderPrefixSuffix = (type) => {
+      
+    };
 
 
     return (
