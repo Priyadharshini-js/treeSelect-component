@@ -38,7 +38,7 @@ export const baseConfig = {
     prefix: undefined, //string or react node
     searchValue: undefined, //string
     showCheckedStrategy: "TreeSelect.SHOW_ALL", // TreeSelect.SHOW_PARENT | TreeSelect.SHOW_CHILD, //string
-    status: "undefined", //'error' | 'warning', //string
+    // status: "undefined", //'error' | 'warning', //string    ----import in treeselectbase
     suffixIcon: undefined, //string or react node
     switcherIcon: undefined, //string or react node
     tagRender: undefined, //function
@@ -51,7 +51,7 @@ export const baseConfig = {
     treeIcon: false, //boolean
     treeLoadedKeys: [], //string[]
     treeLine: false, //boolean or object
-    variant: "outlined", // borderless | filled | underlined", //outlined
+    // variant: "underlined", // borderless | filled | underlined", //outlined    ----import in treeselectbase
     onSearch: undefined, //function
     onSelect: undefined, //function
     onTreeExpand: undefined, //function

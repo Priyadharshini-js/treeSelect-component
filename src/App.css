@@ -13,6 +13,7 @@
 /* //treeSelect container css */
 .tree-sections .tree-select-container {
     position: relative;
+    margin-bottom: 15px;
 }
 
 /* //treeSelect input css */
@@ -25,9 +26,7 @@
     width: 100%;
     overflow-y: auto;
     max-height: 120px;
-    /* flex-wrap: wrap; */
     display: flex;
-    /* gap: 5px; */
     align-items: center;
     justify-content: space-between;
 }
@@ -62,6 +61,12 @@
     font-size: 14px;
 }
 
+.tree-sections .dropdown-icons svg.svg-inline--fa.fa-file-image {
+    font-size: 50px;
+    text-align: center;
+    color: #D0D0D0;
+}
+
 /* //treeSelect dropdown css */
 .tree-dropdown {
     position: absolute;
@@ -80,6 +85,15 @@
     border-radius: 3px;
     margin: 6px 0px;
     column-gap: 5px;
+}
+
+.tree-dropdown .tree-option.disabled .tree-option-label {
+    pointer-events: none;
+    opacity: 0.5;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 10px;
 }
 
 .tree-dropdown .tree-option.selected>.tree-option-label {
@@ -109,4 +123,42 @@
     border-radius: 3px;
     margin-right: 2px;
     text-wrap: nowrap;
+}
+
+/* variant css */
+.tree-sections .tree-select-container.outlined .tree-select-input {
+    border: 1px solid #D0D0D0;
+}
+
+.tree-sections .tree-select-container.underlined .tree-select-input {
+    border: unset;
+    border-bottom: 1px solid #D0D0D0;
+    border-radius: 0;
+}
+
+.tree-sections .tree-select-container.borderless .tree-select-input {
+    border: unset;
+}
+
+.tree-sections .tree-select-container.filled .tree-select-input {
+    border: unset;
+    background-color: #b9b3b333;
+}
+
+.tree-sections .tree-select-container.underlined .tree-select-input:hover {
+    border-bottom: 1px solid #4096ff;
+}
+
+.tree-sections .tree-select-container.outlined .tree-select-input:hover {
+    border: 1px solid #4096ff;
+}
+
+/* status css */
+
+.tree-sections .tree-select-container.error .tree-select-input {
+    border: 1px solid #c70101;
+}
+
+.tree-sections .tree-select-container.warning .tree-select-input {
+    border: 1px solid #edaf08;
 }

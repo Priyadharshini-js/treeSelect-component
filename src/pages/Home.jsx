@@ -1,20 +1,9 @@
-import React, { useState } from 'react'
-import BasicTreeSelect from '../components/TreeSelect/variants/BasicTreeSelect';
-import MultipleSelect from '../components/TreeSelect/variants/MultipleSelect';
-import GenerateSelect from '../components/TreeSelect/variants/GenerateSelect';
-import CheckableSelect from '../components/TreeSelect/variants/CheckableSelect';
-import AsyncSelect from '../components/TreeSelect/variants/AsyncSelect';
-import ShowTreeLineSelect from '../components/TreeSelect/variants/ShowTreeLineSelect';
-import PlacementSelect from '../components/TreeSelect/variants/PlacementSelect';
-import VariantsSelect from '../components/TreeSelect/variants/VariantsSelect';
-import StatusSelect from '../components/TreeSelect/variants/StatusSelect';
-import MaxCountSelect from '../components/TreeSelect/variants/maxCountSelect';
-import PrefixSuffixSelect from '../components/TreeSelect/variants/PrefixSuffixSelect';
+import React from 'react'
+import TreeSelectBase from '../components/TreeSelect/TreeSelectBase';
+import { treeData } from '../components/config/treeData'
+import { treeSelectPresets } from '../components/config/treeSelectProps'
 
 const TreeSelectReusableComponent = () => {
-
-    // const [value, setValue] = useState("");
-
     return (
         <>
             <section>
@@ -24,20 +13,76 @@ const TreeSelectReusableComponent = () => {
                         <h4>Examples</h4>
                     </div>
                     <div className='tree-sections row row-15'>
-                        <BasicTreeSelect />
-                        <MultipleSelect />
-                        <GenerateSelect />
-                        <CheckableSelect />
-                        <AsyncSelect />
-                        <ShowTreeLineSelect />
-                        <PlacementSelect />
-                        <VariantsSelect />
-                        <StatusSelect />
-                        <MaxCountSelect />
-                        <PrefixSuffixSelect />
+                        {/* basic tree select */}
+                        <TreeSelectBase
+                            config={treeSelectPresets.searchable}
+                            label={"Basic"}
+                            data={treeData.basic_selection} />
+                        {/* multiple select */}
+                        <TreeSelectBase
+                            config={{ ...treeSelectPresets.searchable, multiple: true }}
+                            label={"Multiple Selection"}
+                            data={treeData.multiple_selection}
+                        />
+                        {/* generate select */}
+                        <TreeSelectBase
+                            config={treeSelectPresets.default}
+                            label={'Generate from tree data'}
+                            data={treeData.generate_selection}
+                        />
+                        {/* checkable */}
+                        <TreeSelectBase
+                            config={{ ...treeSelectPresets.withCheckable, multiple: true }}
+                            label={'Checkable'}
+                            data={treeData.checkable_selection}
+                        />
+                        {/* asynchronous */}
+                        <TreeSelectBase
+                            placeholder='Please select'
+                            label={'Asynchronous loading'}
+                            multiple={false}
+                            data={treeData.async_loading_selection} />
+                        {/* show tree line */}
+                        <TreeSelectBase
+                            placeholder='Please select'
+                            label={'Show Tree Line'}
+                            data={treeData.treeline_selction}
+                            multiple={false} />
+                        {/* placement */}
+                        <TreeSelectBase
+                            placeholder="Please select"
+                            label={'Placement'}
+                            data={treeData.placement_selection}
+                            multiple={false} />
+                        {/* variants */}
+                        <TreeSelectBase
+                            config={treeSelectPresets.default}
+                            label={'Variants'}
+                            data={treeData.variants_selection}
+                            showAllVariant={true}
+                        />
+                        {/* status */}
+                        <TreeSelectBase
+                            config={treeSelectPresets.default}
+                            label={'Status'}
+                            data={treeData.status_selection}
+                            showStatus={true}
+                        />
+                        {/* max count */}
+                        <TreeSelectBase
+                            config={{ ...treeSelectPresets.default, multiple: true }}
+                            label={'Max Count'}
+                            data={treeData.max_count_selection}
+                        />
+                        {/* prefix and suffix */}
+                        <TreeSelectBase
+                            placeholder="Please select"
+                            label={'Prefix and Suffix'}
+                            multiple={false}
+                            data={treeData.prefix_suffix_selection} />
                     </div>
                 </div>
-            </section>
+            </section >
         </>
     )
 }

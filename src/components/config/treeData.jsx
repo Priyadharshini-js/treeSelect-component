@@ -286,6 +286,18 @@ export const treeData = {
         },
     ],
     async_loading_selection: [],
-    variants_selection: [],
-    status_selection: [],
+    variants_selection: [
+        {
+            title: 'No data',
+            value: 'no data',
+            iconType: 'faFileImage',
+        }
+    ],
+    status_selection: [
+        {
+            title: 'No data',
+            value: 'no data',
+            iconType: 'faFileImage',
+        }
+    ],
 };

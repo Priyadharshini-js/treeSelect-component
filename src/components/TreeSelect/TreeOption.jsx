@@ -8,12 +8,13 @@ const TreeOption = ({ item, selected, onSelect, multiple, treeIcon, renderIcon, 
 
 
     const handleClick = () => {
+        if (item.value === 'no data') return;
         onSelect(item);
         console.log(item)
     };
 
     return (
-        <li className={`tree-option ${isChecked ? 'selected' : ''}`}>
+        <li className={`tree-option ${isChecked ? 'selected' : ''} ${item.value === 'no data' ? 'disabled' : ''}`}>
             <div className="tree-option-label dropdown-icons d-flex align-items-center" onClick={handleClick}>
                 {treeIcon && item.iconType && (
                     <span className="me-2">{renderIcon(item.iconType)}</span>
