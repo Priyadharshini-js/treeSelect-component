@@ -1,8 +1,19 @@
+/* //treeSelect css */
+.tree-sections {
+    column-count: 2;
+    margin-bottom: 1.5rem;
+}
+
+.tree-sections>* {
+    break-inside: avoid;
+}
+
 /* //treeSelect card section css */
 .tree-sections .card-section {
     border: 1px solid rgb(5 5 5 / 12%);
     border-radius: 8px;
     padding: 42px 24px;
+    margin-bottom: 1.5rem;
 }
 
 .tree-sections .card-section p {
@@ -17,7 +28,8 @@
 }
 
 /* //treeSelect input css */
-.tree-sections .tree-select-input {
+.tree-sections .tree-select-input,
+.tree-sections .tree-select-input:focus-visible {
     padding: 6px 8px;
     border: 1px solid #D0D0D0;
     border-radius: 8px;
@@ -29,6 +41,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    outline: none;
 }
 
 .tree-sections .tree-select-input .selected-content {
@@ -161,4 +174,12 @@
 
 .tree-sections .tree-select-container.warning .tree-select-input {
     border: 1px solid #edaf08;
+}
+
+/* media query starts */
+
+@media (max-width: 768px) {
+    .tree-sections {
+        column-count: 1;
+    }
 }

@@ -19,6 +19,7 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
         size,
         treeCheckable,
         treeDefaultExpandAll,
+        prefix,
     } = mergedConfig;
 
     const variant = ["borderless", "filled", "outlined", "underlined"];
@@ -181,6 +182,7 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
                     handleExpandCollapse={handleExpandCollapse}
                 />
             )}
+
         </div>
     );
 
@@ -218,24 +220,70 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
         </div>
     );
 
-    const renderPrefixSuffix = (type) => {
-      
-    };
+    const renderAffixes = () => (
+        <div
+            ref={containerRef}
+            className={`tree-select-container ${disabled ? 'disabled' : ''}`}
+        >
+            <div
+                className={`tree-select-input ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
+                onClick={toggleDropdown}
+            >
+                <div className="selected-content">
+                    {isPlaceholderVisible ? placeholder : selectedLabel}
+                </div>
+                <span className="arrow font-icons">
+                    {isOpen ? renderIcon('faSearch') : renderIcon('faAngleDown')}
+                </span>
+            </div>
+
+            {isOpen && (
+                <TreeDropdown
+                    data={treeDataSet}
+                    selected={selected}
+                    onSelect={handleSelect}
+                    multiple={multiple}
+                    treeIcon={treeIcon}
+                    renderIcon={renderIcon}
+                    treeCheckable={treeCheckable}
+                    expandedNodes={expandedNodes}
+                    handleExpandCollapse={handleExpandCollapse}
+                />
+            )}
+
+            <input
+                type="text"
+                className="prefix-input mt-2 tree-select-input"
+                onClick={toggleDropdown}
+                readOnly
+                value={`Prefix: ${isPlaceholderVisible
+                    ? ''
+                    : multiple
+                        ? selected
+                            .map(value => flatData.find(i => i.value === value)?.title)
+                            .filter(Boolean)
+                            .join(', ')
+                        : flatData.find(i => i.value === selected)?.title || ''
+                    }`}
+            />
+        </div>
+    );
+
 
 
     return (
-        <div className='col-lg-6 col-md-12 col-sm-12'>
-            <div className='card-section'>
-                <div className='card-body'>
-                    <p>{label}</p>
-                    {showStatus ? (
-                        status.map((s) => renderShowStatus(s))
-                    ) : showAllVariant ? (
-                        variant.map((v) => renderTreeSelectContainer(v))
-                    ) : (
-                        renderTreeSelectContainer(defaultVariant)
-                    )}
-                </div>
+        <div className='card-section'>
+            <div className='card-body'>
+                <p>{label}</p>
+                {(showStatus) ? (
+                    status.map((s) => renderShowStatus(s))
+                ) : (showAllVariant) ? (
+                    variant.map((v) => renderTreeSelectContainer(v))
+                ) : (prefix) ? (
+                    renderAffixes()
+                ) : (
+                    renderTreeSelectContainer(defaultVariant)
+                )}
             </div>
         </div>
     );
