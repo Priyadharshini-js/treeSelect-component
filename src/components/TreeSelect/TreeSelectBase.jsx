@@ -6,7 +6,7 @@ import { faAngleDown, faSearch, faCaretDown, faCaretRight, faFileImage } from '@
 import { baseConfig } from '../config/treeSelectProps'
 
 
-const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, showStatus = false }) => {
+const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, showStatus = false, showAllPlacement = false }) => {
     const containerRef = useRef(null);
     const mergedConfig = { ...baseConfig, ...config };
     const {
@@ -20,17 +20,19 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
         treeCheckable,
         treeDefaultExpandAll,
         prefix,
+        placement,
+        variant,
+        status
     } = mergedConfig;
 
-    const variant = ["borderless", "filled", "outlined", "underlined"];
     const defaultVariant = 'outlined';
-
-    const status = ["error", "warning"];
+    const defaultPlacement = 'bottomLeft';
 
 
     const [isOpen, setIsOpen] = useState(false);
     const [selected, setSelected] = useState(multiple ? [] : null);
     const [expandedNodes, setExpandedNodes] = useState(new Set());
+    const [currentPlacement, setCurrentPlacement] = useState(defaultPlacement);
 
     const treeDataSet = data || treeData.basic_selection;
 
@@ -47,11 +49,6 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
         const icon = treeIcon[type];
         return icon ? <FontAwesomeIcon icon={icon} /> : null;
     };
-
-
-    // const toggleDropdown = () => {
-    //     if (!disabled) setIsOpen(prev => !prev);
-    // };
 
     const toggleDropdown = () => {
         if (!disabled) {
@@ -76,6 +73,10 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
             setIsOpen(prev => !prev);
         }
     };
+
+    const togglePlacement = (pos) => {
+        setCurrentPlacement(pos);
+    }
 
     const handleSelect = (item) => {
         if (multiple) {
@@ -152,7 +153,9 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
     const isPlaceholderVisible =
         (!multiple && !selected) || (multiple && selected.length === 0);
 
-    const renderTreeSelectContainer = (variantType) => (
+
+    //variant type [borderless, filled, outlined, underlined]
+    const renderVariant = (variantType) => (
         <div
             ref={containerRef}
             key={variantType}
@@ -186,6 +189,7 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
         </div>
     );
 
+    //status type [ error, warning]
     const renderShowStatus = (statusType) => (
         <div
             ref={containerRef}
@@ -220,6 +224,7 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
         </div>
     );
 
+    // prefix
     const renderAffixes = () => (
         <div
             ref={containerRef}
@@ -269,6 +274,54 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
         </div>
     );
 
+    // placement type [topright, topleft, bottomleft, bottomright]
+    const renderPlacement = (placementType) => (
+        <>
+            <div className='toggle-placement'>
+                {placement.map(p => (
+                    <div
+                        key={p}
+                        onClick={() => togglePlacement(p)}
+                        className={currentPlacement === p ? 'active' : ''}
+                    >
+                        {p}
+                    </div>
+                ))}
+            </div>
+            <div
+                ref={containerRef}
+                key={placementType}
+                className={`tree-select-container ${disabled ? 'disabled' : ''}`}
+            >
+                <div
+                    className={`tree-select-input w-25 ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
+                    onClick={toggleDropdown}
+                >
+                    <div className="selected-content">
+                        {isPlaceholderVisible ? placeholder : selectedLabel}
+                    </div>
+                    <span className="arrow font-icons">
+                        {isOpen ? renderIcon('faSearch') : renderIcon('faAngleDown')}
+                    </span>
+                </div>
+                {isOpen && (
+                    <div className={`dropdown-placement ${currentPlacement}`}>
+                        <TreeDropdown
+                            data={treeDataSet}
+                            selected={selected}
+                            onSelect={handleSelect}
+                            multiple={multiple}
+                            treeIcon={treeIcon}
+                            renderIcon={renderIcon}
+                            treeCheckable={treeCheckable}
+                            expandedNodes={expandedNodes}
+                            handleExpandCollapse={handleExpandCollapse}
+                        />
+                    </div>
+                )}
+            </div>
+        </>
+    )
 
 
     return (
@@ -278,11 +331,13 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
                 {(showStatus) ? (
                     status.map((s) => renderShowStatus(s))
                 ) : (showAllVariant) ? (
-                    variant.map((v) => renderTreeSelectContainer(v))
+                    variant.map((v) => renderVariant(v))
                 ) : (prefix) ? (
                     renderAffixes()
+                ) : (showAllPlacement) ? (
+                    renderPlacement()
                 ) : (
-                    renderTreeSelectContainer(defaultVariant)
+                    renderVariant(defaultVariant)
                 )}
             </div>
         </div>

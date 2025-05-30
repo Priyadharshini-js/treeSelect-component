@@ -37,7 +37,7 @@ const TreeSelectReusableComponent = () => {
                             config={{ ...treeSelectPresets.default, treeDefaultExpandAll: true }}
                             label={'Placement'}
                             data={treeData.placement_selection}
-                            multiple={false}
+                            showAllPlacement={true}
                         />
                         {/* status */}
                         <TreeSelectBase

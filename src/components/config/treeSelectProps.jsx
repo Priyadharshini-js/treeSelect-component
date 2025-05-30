@@ -34,11 +34,11 @@ export const baseConfig = {
     maxTagPlaceholder: undefined, //function
     maxTagTextLength: undefined, //number
     notFoundContent: undefined, //react node
-    placement: "bottomLeft",  //bottomRight topLeft topRight, //string
+    placement: ["bottomLeft", 'bottomRight', 'topLeft', 'topRight'], //string
     prefix: undefined, //string or react node
     searchValue: undefined, //string
     showCheckedStrategy: "TreeSelect.SHOW_ALL", // TreeSelect.SHOW_PARENT | TreeSelect.SHOW_CHILD, //string
-    // status: "undefined", //'error' | 'warning', //string    ----import in treeselectbase
+    status: ['error', 'warning'], //string'  //undefined  
     suffixIcon: undefined, //string or react node
     switcherIcon: undefined, //string or react node
     tagRender: undefined, //function
@@ -51,7 +51,7 @@ export const baseConfig = {
     treeIcon: false, //boolean
     treeLoadedKeys: [], //string[]
     treeLine: false, //boolean or object
-    // variant: "underlined", // borderless | filled | underlined", //outlined    ----import in treeselectbase
+    variant: ["underlined", 'borderless', 'filled', 'outlined'],
     onSearch: undefined, //function
     onSelect: undefined, //function
     onTreeExpand: undefined, //function
