@@ -1,37 +1,45 @@
 import React, { useRef, useEffect } from 'react'
 
-const TreeOption = ({ item, selected, onSelect, multiple, treeIcon, renderIcon, treeCheckable, expandedNodes, handleExpandCollapse, isAllSelected, isPartiallySelected }) => {
-    // const isChecked = multiple
-    //     ? selected.includes(item.value)
-    //     : selected === item.value;
-    // console.log("selected:", selected, "item.value:", item.value, "isChecked:", isChecked);
-    const checkboxRef = useRef(null);
+const TreeOption = ({ item, selected, onSelect, multiple, treeIcon, renderIcon, treeCheckable, expandedNodes, handleExpandCollapse, disabledValues }) => {
+    const checkboxRef = useRef();
+    const isDisabled = disabledValues?.has(item.value) || item.value === 'no data';
 
-    // Determine if node is fully checked
-    const checked = multiple ? isAllSelected(item, selected) : selected === item.value;
 
-    // Determine if node is partially checked (for multiple mode)
-    const indeterminate = multiple ? isPartiallySelected(item, selected) : false;
+    const collectAllChildValues = (node) => {
+        let values = [];
+        if (node.children) {
+            node.children.forEach(child => {
+                values.push(child.value);
+                values.push(...collectAllChildValues(child));
+            });
+        }
+        return values;
+    };
 
-    // Set indeterminate property on checkbox DOM element
+    const selectedArr = Array.isArray(selected) ? selected : [];
+    const allChildren = collectAllChildValues(item);
+
+    // Determine selection states
+    const allSelected = allChildren.length > 0 && allChildren.every((val) => selectedArr.includes(val));
+    const anySelected = allChildren.some((val) => selectedArr.includes(val));
+    const isChecked = selectedArr.includes(item.value) || allSelected;
+    const isIndeterminate = anySelected && !allSelected;
+
     useEffect(() => {
         if (checkboxRef.current) {
-            checkboxRef.current.indeterminate = indeterminate;
+            checkboxRef.current.indeterminate = isIndeterminate;
         }
-    }, [indeterminate]);
+    }, [isIndeterminate]);
 
-    const onCheckboxClick = (e) => {
+
+    const handleClick = (e) => {
         e.stopPropagation();
         onSelect(item);
     };
 
-    const handleClick = () => {
-        onSelect(item);
-    };
-
     return (
-        <li className={`tree-option ${checked ? 'selected' : ''} ${item.value === 'no data' ? 'disabled' : ''}`}>
-            <div className="tree-option-label dropdown-icons d-flex align-items-center" onClick={handleClick}>
+        <li className={`tree-option ${isChecked ? 'selected' : ''} ${item.value === 'no data' ? 'no-data' : ''} ${isDisabled ? 'disabled' : ''}`}>
+            <div className="tree-option-label dropdown-icons d-flex align-items-center" onClick={!isDisabled ? handleClick : undefined}>
                 {treeIcon && item.iconType && (
                     <span className="me-2"
                         onClick={(e) => {
@@ -43,7 +51,8 @@ const TreeOption = ({ item, selected, onSelect, multiple, treeIcon, renderIcon, 
                             : renderIcon(expandedNodes.has(item.value) ? 'faCaretDown' : 'faCaretRight')}
                     </span>
                 )}
-                {treeCheckable && <input type="checkbox" ref={checkboxRef} readOnly checked={checked} onClick={onCheckboxClick} />}
+                {treeCheckable && <input type="checkbox" readOnly checked={isChecked} disabled={isDisabled}
+                    ref={checkboxRef} />}
                 {item.title}
             </div>
             {item.children && item.children.length > 0 && expandedNodes.has(item.value) && (
@@ -60,8 +69,8 @@ const TreeOption = ({ item, selected, onSelect, multiple, treeIcon, renderIcon, 
                             treeCheckable={treeCheckable}
                             expandedNodes={expandedNodes}
                             handleExpandCollapse={handleExpandCollapse}
-                            isAllSelected={isAllSelected}
-                            isPartiallySelected={isPartiallySelected}
+                            disabledValues={disabledValues}
+
                         />
                     ))}
                 </ul>

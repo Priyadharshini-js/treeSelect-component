@@ -100,13 +100,20 @@
     column-gap: 5px;
 }
 
-.tree-dropdown .tree-option.disabled .tree-option-label {
+.tree-dropdown .tree-option.no-data.disabled .tree-option-label {
     pointer-events: none;
     opacity: 0.5;
     display: flex;
     flex-direction: column;
     justify-content: center;
     padding: 10px;
+}
+
+.tree-dropdown .tree-option.disabled .tree-option-label {
+    display: flex;
+    flex-direction: unset;
+    pointer-events: none;
+    opacity: 0.5;
 }
 
 .tree-dropdown .tree-option.selected>.tree-option-label {

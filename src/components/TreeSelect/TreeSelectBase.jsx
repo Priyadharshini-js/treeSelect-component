@@ -21,7 +21,8 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
         prefix,
         placement,
         variant,
-        status
+        status,
+        maxCount
     } = mergedConfig;
 
     const defaultVariant = 'outlined';
@@ -29,11 +30,10 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
 
 
     const [isOpen, setIsOpen] = useState(null);
-    // const [selected, setSelected] = useState(multiple ? [] : null);
-    const [selected, setSelected] = useState(() => (multiple ? new Set() : null));
-
+    const [selected, setSelected] = useState(multiple ? [] : null);
     const [expandedNodes, setExpandedNodes] = useState(new Set());
     const [currentPlacement, setCurrentPlacement] = useState(defaultPlacement);
+    const [disabledValues, setDisabledValues] = useState(new Set());
 
     const treeDataSet = data || treeData.basic_selection;
 
@@ -82,58 +82,212 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
         setCurrentPlacement(pos);
     }
 
+    const parentMap = useMemo(() => {
+        const map = new Map();
+        const buildMap = (nodes, parent = null) => {
+            nodes.forEach(node => {
+                if (parent) map.set(node.value, parent);
+                if (node.children) buildMap(node.children, node);
+            });
+        };
+        buildMap(treeDataSet);
+        return map;
+    }, [treeDataSet]);
+
     const handleSelect = (item) => {
-        if (multiple) {
-            handleToggle(item);
-        } else {
+        if (!multiple) {
             setSelected(item.value);
             setIsOpen(false);
             onChange?.(item.value);
-        }
-    };
-
-    const getAllDescendants = (node) => {
-        if (!node.children) return [node.value];
-        return [node.value, ...node.children.flatMap(getAllDescendants)];
-    };
-
-    const isAllSelected = (node, selected) => {
-        const descendants = getAllDescendants(node);
-        return descendants.every((val) => selected.has(val));
-    };
-
-    // Check if partially selected: some but not all descendants selected
-    const isPartiallySelected = (node, selected) => {
-        if (!node.children) return false;
-        const descendants = getAllDescendants(node);
-        const someSelected = descendants.some((val) => selected.has(val));
-        const allSelected = descendants.every((val) => selected.has(val));
-        return someSelected && !allSelected;
-    };
-
-
-    // Toggle node selection: select/deselect node + all descendants
-    const handleToggle = (node) => {
-        if (!multiple) {
-            setSelected(node.value);
-            onChange?.(node.value);
-            setIsOpen(false);
             return;
         }
-        setSelected((prevSelected) => {
-            const newSelected = new Set(prevSelected);
-            const descendants = getAllDescendants(node);
-            const allSelected = descendants.every((val) => newSelected.has(val));
-            if (allSelected) {
-                // Deselect all descendants
-                descendants.forEach((val) => newSelected.delete(val));
-            } else {
-                // Select all descendants
-                descendants.forEach((val) => newSelected.add(val));
+
+        if (treeCheckable) {
+            const collectAllChildValues = (node) => {
+                const values = [node.value];
+                if (node.children) {
+                    node.children.forEach(child => {
+                        values.push(...collectAllChildValues(child));
+                    });
+                }
+                return values;
+            };
+
+            // const toggleWithChildren = (node) => {
+            //     setSelected(prev => {
+            //         const selectedSet = new Set(prev);
+            //         const value = node.value;
+
+            //         if (selectedSet.has(value)) {
+            //             // Deselect the node
+            //             selectedSet.delete(value);
+
+            //             // If it has children, deselect them too
+            //             const childValues = collectAllChildValues(node).filter(v => v !== value);
+            //             childValues.forEach(v => selectedSet.delete(v));
+            //         } else {
+            //             // Select the node
+            //             selectedSet.add(value);
+
+            //             // If it has children, select them too
+            //             const childValues = collectAllChildValues(node).filter(v => v !== value);
+            //             childValues.forEach(v => selectedSet.add(v));
+            //         }
+
+            //         // ⬆️ Upward sync: if all siblings of a node are selected, select the parent
+            //         let current = node;
+            //         while (parentMap.has(current.value)) {
+            //             const parent = parentMap.get(current.value);
+            //             const allChildrenSelected = parent.children.every(child => selectedSet.has(child.value));
+
+            //             if (allChildrenSelected) {
+            //                 selectedSet.add(parent.value);
+            //             } else {
+            //                 selectedSet.delete(parent.value);
+            //             }
+
+            //             current = parent;
+            //         }
+
+            //         const updated = Array.from(selectedSet);
+            //         onChange?.(updated);
+            //         return updated;
+            //     });
+            // };
+
+            const toggleWithChildren = (node) => {
+                setSelected(prev => {
+                    const selectedSet = new Set(prev);
+                    const value = node.value;
+
+                    const collectAllChildValues = (node) => {
+                        const values = [node.value];
+                        if (node.children) {
+                            node.children.forEach(child => {
+                                values.push(...collectAllChildValues(child));
+                            });
+                        }
+                        return values;
+                    };
+
+                    if (selectedSet.has(value)) {
+                        // Deselect node and children
+                        const allValues = collectAllChildValues(node);
+                        allValues.forEach(val => selectedSet.delete(val));
+                    } else {
+                        // Add node and children
+                        const allValues = collectAllChildValues(node);
+                        allValues.forEach(val => selectedSet.add(val));
+                    }
+
+                    // Upward sync: Check parents
+                    let current = node;
+                    while (parentMap.has(current.value)) {
+                        const parent = parentMap.get(current.value);
+                        const allChildrenSelected = parent.children.every(child => selectedSet.has(child.value));
+
+                        if (allChildrenSelected) {
+                            selectedSet.add(parent.value);
+                        } else {
+                            selectedSet.delete(parent.value);
+                        }
+
+                        current = parent;
+                    }
+
+                    const finalSelected = Array.from(selectedSet);
+                    const topLevel = getTopLevelSelected(finalSelected, treeDataSet);
+
+                    // Disable remaining options if maxCount reached
+                    if (maxCount && topLevel.length >= maxCount) {
+                        const disabled = new Set();
+
+                        const markDisabled = (nodes) => {
+                            nodes.forEach(n => {
+                                if (!topLevel.includes(n.value)) {
+                                    disabled.add(n.value);
+                                    if (n.children) markDisabled(n.children);
+                                }
+                            });
+                        };
+
+                        markDisabled(treeDataSet);
+                        setDisabledValues(disabled);
+                    } else {
+                        setDisabledValues(new Set());
+                    }
+
+                    onChange?.(finalSelected);
+                    return finalSelected;
+                });
+            };
+
+            toggleWithChildren(item);
+        } else {
+            // Normal multiple behavior (no recursion)
+            setSelected(prev => {
+                const updated = prev.includes(item.value)
+                    ? prev.filter(val => val !== item.value)
+                    : [...prev, item.value];
+                onChange?.(updated);
+                return updated;
+            });
+        }
+    };
+
+
+    const collapseSelectedWithParents = (selectedValues, nodes) => {
+        // Convert selected to Set for easier checking
+        const selectedSet = new Set(selectedValues);
+
+        const helper = (node) => {
+            if (!node.children || node.children.length === 0) {
+                // Leaf node, return if selected or not
+                return selectedSet.has(node.value) ? [node.value] : [];
             }
-            onChange?.([...newSelected]);
-            return newSelected;
+
+            // For parents: check all children recursively
+            const childrenSelections = node.children.flatMap(child => helper(child));
+
+            // Check if all children are selected (collapsed)
+            const allChildrenSelected = node.children.every(child => {
+                return selectedSet.has(child.value) || childrenSelections.includes(child.value);
+            });
+
+            if (allChildrenSelected) {
+                // If all children selected, return only parent value
+                return [node.value];
+            }
+
+            // Otherwise, return collected children selections
+            return childrenSelections;
+        };
+
+        // Run for all root nodes and flatten
+        const collapsed = nodes.flatMap(node => helper(node));
+
+        // Remove duplicates just in case
+        return Array.from(new Set(collapsed));
+    };
+
+
+    const getTopLevelSelected = (selectedValues, nodes) => {
+        const selectedSet = new Set(selectedValues);
+        const result = [];
+
+        const isFullySelected = (node) => {
+            if (!node.children || node.children.length === 0) return selectedSet.has(node.value);
+
+            return node.children.every(child => isFullySelected(child));
+        };
+
+        nodes.forEach(node => {
+            if (isFullySelected(node)) {
+                result.push(node.value);
+            }
         });
+
+        return result;
     };
 
 
@@ -174,25 +328,33 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
     // const flatData = flattenData(treeDataSet);
     const flatData = useMemo(() => flattenData(treeDataSet), [treeDataSet]);
 
+
+
+    const collapsedSelected = multiple && treeCheckable
+        ? collapseSelectedWithParents(selected, treeDataSet)
+        : selected;
+
     const selectedLabel = multiple
-        ? [...selected].map((value) => {
+        ? collapsedSelected.map(value => {
             const item = flatData.find(i => i.value === value);
             return (
                 <span key={value} className="selected-pill">
                     {item?.title}
-                    <span className="remove-pill ms-2" onClick={(e) => {
-                        e.stopPropagation(); // prevent dropdown from toggling
-                        setSelected(prev => {
-                            const updated = prev.filter(val => val !== item.value);
-                            onChange?.(updated);
-                            return updated;
-                        });
-                    }}>×</span>
+                    <span
+                        className="remove-pill ms-2"
+                        onClick={(e) => {
+                            e.stopPropagation(); // prevent dropdown toggle
+                            if (item) {
+                                handleSelect(item);  // Toggle selection properly
+                            }
+                        }}
+                    >
+                        ×
+                    </span>
                 </span>
-            )
+            );
         })
         : flatData.find(item => item.value === selected)?.title || placeholder;
-
 
     const isPlaceholderVisible =
         (!multiple && !selected) || (multiple && selected.length === 0);
@@ -229,8 +391,7 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
                         treeCheckable={treeCheckable}
                         expandedNodes={expandedNodes}
                         handleExpandCollapse={handleExpandCollapse}
-                        isAllSelected={isAllSelected}
-                        isPartiallySelected={isPartiallySelected}
+                        disabledValues={disabledValues}
                     />
                 )}
 
@@ -269,8 +430,6 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
                         treeCheckable={treeCheckable}
                         expandedNodes={expandedNodes}
                         handleExpandCollapse={handleExpandCollapse}
-                        isAllSelected={isAllSelected}
-                        isPartiallySelected={isPartiallySelected}
                     />
                 )}
             </div>
@@ -306,8 +465,6 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
                     treeCheckable={treeCheckable}
                     expandedNodes={expandedNodes}
                     handleExpandCollapse={handleExpandCollapse}
-                    isAllSelected={isAllSelected}
-                    isPartiallySelected={isPartiallySelected}
                 />
             )}
 
@@ -371,8 +528,6 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
                             treeCheckable={treeCheckable}
                             expandedNodes={expandedNodes}
                             handleExpandCollapse={handleExpandCollapse}
-                            isAllSelected={isAllSelected}
-                            isPartiallySelected={isPartiallySelected}
                         />
                     </div>
                 )}

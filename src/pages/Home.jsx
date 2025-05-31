@@ -59,7 +59,7 @@ const TreeSelectReusableComponent = () => {
                         />
                         {/* checkable */}
                         <TreeSelectBase
-                            config={{ ...treeSelectPresets.withCheckable, multiple: true, treeDefaultExpandAll: false }}
+                            config={{ ...treeSelectPresets.withCheckable, multiple: true, treeDefaultExpandAll: false, treeCheckable: true }}
                             label={'Checkable'}
                             data={treeData.checkable_selection}
                         />
@@ -78,7 +78,7 @@ const TreeSelectReusableComponent = () => {
                         />
                         {/* max count */}
                         <TreeSelectBase
-                            config={{ ...treeSelectPresets.withCheckable, multiple: true, treeDefaultExpandAll: false }}
+                            config={{ ...treeSelectPresets.withCheckable, multiple: true, treeDefaultExpandAll: false, treeCheckable: true, maxCount: 1 }}
                             label={'Max Count'}
                             data={treeData.max_count_selection}
                         />
