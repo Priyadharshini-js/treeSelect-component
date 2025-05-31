@@ -29,7 +29,6 @@ const TreeSelectReusableComponent = () => {
                         <TreeSelectBase
                             placeholder='Please select'
                             label={'Asynchronous loading'}
-                            multiple={false}
                             data={treeData.async_loading_selection}
                         />
                         {/* placement */}
@@ -54,7 +53,7 @@ const TreeSelectReusableComponent = () => {
                         />
                         {/* multiple select */}
                         <TreeSelectBase
-                            config={{ ...treeSelectPresets.searchable, multiple: true, treeDefaultExpandAll: true }}
+                            config={{ ...treeSelectPresets.default, multiple: true, treeDefaultExpandAll: true }}
                             label={"Multiple Selection"}
                             data={treeData.multiple_selection}
                         />
@@ -79,7 +78,7 @@ const TreeSelectReusableComponent = () => {
                         />
                         {/* max count */}
                         <TreeSelectBase
-                            config={{ ...treeSelectPresets.default, treeDefaultExpandAll: false }}
+                            config={{ ...treeSelectPresets.withCheckable, multiple: true, treeDefaultExpandAll: false }}
                             label={'Max Count'}
                             data={treeData.max_count_selection}
                         />
