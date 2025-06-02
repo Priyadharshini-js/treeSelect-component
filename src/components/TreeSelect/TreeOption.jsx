@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react'
 
-const TreeOption = ({ item, selected, onSelect, multiple, treeIcon, renderIcon, treeCheckable, expandedNodes, handleExpandCollapse, disabledValues }) => {
+const TreeOption = ({ item, selected, onSelect, multiple, treeIcon, renderIcon, treeCheckable, expandedNodes, handleExpandCollapse, disabledValues, treeLine }) => {
     const checkboxRef = useRef();
     const isDisabled = disabledValues?.has(item.value) || item.value === 'no data';
 
@@ -46,9 +46,18 @@ const TreeOption = ({ item, selected, onSelect, multiple, treeIcon, renderIcon, 
                             e.stopPropagation(); // Prevent handleClick
                             handleExpandCollapse(item.value);
                         }}>
-                        {item.value === 'no data'
+                        {/* {item.value === 'no data'
                             ? renderIcon('faFileImage')
-                            : renderIcon(expandedNodes.has(item.value) ? 'faCaretDown' : 'faCaretRight')}
+                            : renderIcon(expandedNodes.has(item.value) ? 'faCaretDown' : 'faCaretRight') ||
+                            renderIcon(expandedNodes.has(item.value) ? 'faPlusSquare' : 'faCaretRight')} */}
+                        {item.value === 'no data' ? (
+                            renderIcon('faFileImage')
+                        ) : treeLine ? (
+                            renderIcon(expandedNodes.has(item.value) ? 'faMinusSquare' : 'faPlusSquare')
+                        ) : (
+                            renderIcon(expandedNodes.has(item.value) ? 'faCaretDown' : 'faCaretRight')
+                        )}
+
                     </span>
                 )}
                 {treeCheckable && <input type="checkbox" readOnly checked={isChecked} disabled={isDisabled}
@@ -70,7 +79,7 @@ const TreeOption = ({ item, selected, onSelect, multiple, treeIcon, renderIcon, 
                             expandedNodes={expandedNodes}
                             handleExpandCollapse={handleExpandCollapse}
                             disabledValues={disabledValues}
-
+                            treeLine={treeLine}
                         />
                     ))}
                 </ul>

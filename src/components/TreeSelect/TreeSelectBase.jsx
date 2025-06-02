@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react'
 import TreeDropdown from './TreeDropdown'
 import { treeData } from '../config/treeData'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faAngleDown, faSearch, faCaretDown, faCaretRight, faFileImage } from '@fortawesome/free-solid-svg-icons'
+import { faAngleDown, faSearch, faCaretDown, faCaretRight, faFileImage, faPlusSquare, faMinusSquare } from '@fortawesome/free-solid-svg-icons'
 import { baseConfig } from '../config/treeSelectProps'
 
 
@@ -14,22 +14,21 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
         multiple,
         onChange,
         disabled,
-        showSearch,
-        allowClear,
         treeCheckable,
         treeDefaultExpandAll,
         prefix,
         placement,
         variant,
         status,
-        maxCount
+        maxCount,
+        treeLine,
     } = mergedConfig;
 
     const defaultVariant = 'outlined';
     const defaultPlacement = 'bottomLeft';
 
 
-    const [isOpen, setIsOpen] = useState(null);
+    const [isOpen, setIsOpen] = useState({});
     const [selected, setSelected] = useState(multiple ? [] : null);
     const [expandedNodes, setExpandedNodes] = useState(new Set());
     const [currentPlacement, setCurrentPlacement] = useState(defaultPlacement);
@@ -44,6 +43,8 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
         'faCaretDown': faCaretDown,
         'faCaretRight': faCaretRight,
         'faFileImage': faFileImage,
+        'faPlusSquare': faPlusSquare,
+        'faMinusSquare': faMinusSquare
     }
 
     const renderIcon = (type) => {
@@ -112,48 +113,6 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
                 }
                 return values;
             };
-
-            // const toggleWithChildren = (node) => {
-            //     setSelected(prev => {
-            //         const selectedSet = new Set(prev);
-            //         const value = node.value;
-
-            //         if (selectedSet.has(value)) {
-            //             // Deselect the node
-            //             selectedSet.delete(value);
-
-            //             // If it has children, deselect them too
-            //             const childValues = collectAllChildValues(node).filter(v => v !== value);
-            //             childValues.forEach(v => selectedSet.delete(v));
-            //         } else {
-            //             // Select the node
-            //             selectedSet.add(value);
-
-            //             // If it has children, select them too
-            //             const childValues = collectAllChildValues(node).filter(v => v !== value);
-            //             childValues.forEach(v => selectedSet.add(v));
-            //         }
-
-            //         // ⬆️ Upward sync: if all siblings of a node are selected, select the parent
-            //         let current = node;
-            //         while (parentMap.has(current.value)) {
-            //             const parent = parentMap.get(current.value);
-            //             const allChildrenSelected = parent.children.every(child => selectedSet.has(child.value));
-
-            //             if (allChildrenSelected) {
-            //                 selectedSet.add(parent.value);
-            //             } else {
-            //                 selectedSet.delete(parent.value);
-            //             }
-
-            //             current = parent;
-            //         }
-
-            //         const updated = Array.from(selectedSet);
-            //         onChange?.(updated);
-            //         return updated;
-            //     });
-            // };
 
             const toggleWithChildren = (node) => {
                 setSelected(prev => {
@@ -392,6 +351,7 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
                         expandedNodes={expandedNodes}
                         handleExpandCollapse={handleExpandCollapse}
                         disabledValues={disabledValues}
+                        treeLine={treeLine}
                     />
                 )}
 
@@ -430,6 +390,7 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
                         treeCheckable={treeCheckable}
                         expandedNodes={expandedNodes}
                         handleExpandCollapse={handleExpandCollapse}
+                        treeLine={treeLine}
                     />
                 )}
             </div>
@@ -465,6 +426,7 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
                     treeCheckable={treeCheckable}
                     expandedNodes={expandedNodes}
                     handleExpandCollapse={handleExpandCollapse}
+                    treeLine={treeLine}
                 />
             )}
 
@@ -528,12 +490,87 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
                             treeCheckable={treeCheckable}
                             expandedNodes={expandedNodes}
                             handleExpandCollapse={handleExpandCollapse}
+                            treeLine={treeLine}
+
                         />
                     </div>
                 )}
             </div>
         </>
     )
+
+    // tree line (show tree line)
+    const renderTreeLine = () => {
+        const isOpenForThis = isOpen === 'treeLine';
+        return (
+            <>
+                <div className='tree-line-wrapper row row-10'>
+                    <div className='tree-line col-4'>
+                        <div className="btn btn-pill" id="showIcon">
+                            <input type="checkbox" className="checkbox" />
+                            <div className="knob"></div>
+                            <div className="btn-bg">
+                                <span className="toggle-label">showIcon</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className='tree-line col-4'>
+                        <div className="btn btn-pill" id="treeLine" >
+                            <input type="checkbox" className="checkbox" checked />
+                            <div className="knob"></div>
+                            <div className="btn-bg">
+                                <span className="toggle-label">treeLine</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className='tree-line col-4'>
+                        <div className="btn btn-pill" id="showLeafIcon">
+                            <input type="checkbox" className="checkbox" />
+                            <div className="knob"></div>
+                            <div className="btn-bg">
+                                <span className="toggle-label">showLeafIcon</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                < div
+                    ref={containerRef}
+                    className={`tree-select-container ${disabled ? 'disabled' : ''}`
+                    }
+                >
+                    <div
+                        className={`tree-select-input ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
+                        onClick={() => toggleDropdown('treeLine')}
+                    >
+                        <div className="selected-content">
+                            {isPlaceholderVisible ? placeholder : selectedLabel}
+                        </div>
+                        <span className="arrow font-icons">
+                            {isOpenForThis ? renderIcon('faSearch') : renderIcon('faAngleDown')}
+                        </span>
+                    </div>
+                    {
+                        isOpenForThis && (
+                            <TreeDropdown
+                                data={treeDataSet}
+                                selected={selected}
+                                onSelect={handleSelect}
+                                multiple={multiple}
+                                treeIcon={treeIcon}
+                                renderIcon={renderIcon}
+                                treeCheckable={treeCheckable}
+                                expandedNodes={expandedNodes}
+                                handleExpandCollapse={handleExpandCollapse}
+                                disabledValues={disabledValues}
+                                treeLine={treeLine}
+                            />
+                        )
+                    }
+
+                </div >
+            </>
+        )
+    }
 
 
     return (
@@ -548,6 +585,8 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
                     renderAffixes()
                 ) : (showAllPlacement) ? (
                     renderPlacement()
+                ) : (treeLine) ? (
+                    renderTreeLine()
                 ) : (
                     renderVariant(defaultVariant)
                 )}

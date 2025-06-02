@@ -57,26 +57,3 @@ export const baseConfig = {
     onTreeExpand: undefined, //function
     onPopupScroll: undefined, //function
 };
-
-export const treeSelectPresets = {
-    default: {
-        ...baseConfig,
-        placeholder: "Please select",
-    },
-
-    searchable: {
-        ...baseConfig,
-        showSearch: true,
-    },
-
-    withCheckable: {
-        ...baseConfig,
-        treeCheckable: true,
-        showSearch: true,
-    },
-
-    disabled: {
-        ...baseConfig,
-        disabled: true,
-    },
-}

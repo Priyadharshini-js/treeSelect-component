@@ -236,6 +236,150 @@
     top: -171px;
 }
 
+
+
+
+/* show treeline css starts */
+.tree-line-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.tree-line-wrapper .btn,
+.tree-line-wrapper .btn:active {
+    position: relative;
+    width: 100px;
+    padding: 0px !important;
+    border: none;
+}
+
+.btn.btn-pill,
+.btn.btn-pill>.btn-bg {
+    border-radius: 35px;
+}
+
+.checkbox {
+    position: relative;
+    width: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 3;
+}
+
+.knob,
+.btn-bg {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.tree-line-wrapper .knob {
+    z-index: 2;
+}
+
+.tree-line-wrapper .btn-bg {
+    width: 100%;
+    background-color: #8C8C8C;
+    transition: 0.3s ease all;
+    z-index: 1;
+}
+
+.tree-line-wrapper .toggle-label {
+    font-size: 10px;
+    position: relative;
+    top: -2px;
+    font-weight: 500;
+    padding: 0 25px;
+    color: white;
+}
+
+/* showIcon */
+#showIcon .knob:before {
+    content: "";
+    position: absolute;
+    top: 1.5px;
+    left: 4px;
+    width: 20px;
+    height: 20px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.3s cubic-bezier(0.18, 0.89, 0.35, 1.15) all;
+}
+
+#showIcon .checkbox:checked+.knob:before {
+    content: "";
+    left: 75px;
+}
+
+#showIcon .checkbox:checked~.btn-bg {
+    background-color: #4D96FF;
+}
+
+#showIcon .knob,
+#showIcon .knob:before,
+#showIcon .btn-bg {
+    transition: 0.3s ease all;
+}
+
+/* treeLine */
+#treeLine .knob:before {
+    content: "";
+    position: absolute;
+    top: 1.5px;
+    left: 4px;
+    width: 20px;
+    height: 20px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.3s cubic-bezier(0.18, 0.89, 0.35, 1.15) all;
+}
+
+#treeLine .checkbox:checked+.knob:before {
+    content: "";
+    left: 75px;
+}
+
+#treeLine .checkbox:checked~.btn-bg {
+    background-color: #4D96FF;
+}
+
+#treeLine .knob,
+#treeLine .knob:before,
+#treeLine .btn-bg {
+    transition: 0.3s ease all;
+}
+
+/* showLeafIcon */
+#showLeafIcon .knob:before {
+    content: "";
+    position: absolute;
+    top: 1.5px;
+    left: 4px;
+    width: 20px;
+    height: 20px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.3s cubic-bezier(0.18, 0.89, 0.35, 1.15) all;
+}
+
+#showLeafIcon .checkbox:checked+.knob:before {
+    content: "";
+    left: 75px;
+}
+
+#showLeafIcon .checkbox:checked~.btn-bg {
+    background-color: #4D96FF;
+}
+
+#showLeafIcon .knob,
+#showLeafIcon .knob:before,
+#showLeafIcon .btn-bg {
+    transition: 0.3s ease all;
+}
+
 /* media query starts */
 
 @media (max-width: 768px) {
@@ -243,32 +387,3 @@
         column-count: 1;
     }
 }
-
-
-
-
-/* .dropdown-placement {
-    position: absolute;
-    z-index: 10;
-    width: 100%;
-}
-
-.dropdown-placement.bottomLeft {
-    top: 100%;
-    left: 0;
-}
-
-.dropdown-placement.bottomRight {
-    top: 100%;
-    right: 0;
-}
-
-.dropdown-placement.topLeft {
-    bottom: 100%;
-    left: 0;
-}
-
-.dropdown-placement.topRight {
-    bottom: 100%;
-    right: 0;
-} */

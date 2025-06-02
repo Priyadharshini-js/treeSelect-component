@@ -1,7 +1,7 @@
 import React from 'react'
 import TreeSelectBase from '../components/TreeSelect/TreeSelectBase';
 import { treeData } from '../components/config/treeData'
-import { treeSelectPresets } from '../components/config/treeSelectProps'
+// import { treeSelectPresets } from '../components/config/treeSelectProps'
 
 const TreeSelectReusableComponent = () => {
     return (
@@ -15,70 +15,68 @@ const TreeSelectReusableComponent = () => {
                     <div className='tree-sections'>
                         {/* basic tree select */}
                         <TreeSelectBase
-                            config={{ ...treeSelectPresets.searchable, treeDefaultExpandAll: true }}
+                            config={{ treeDefaultExpandAll: true }}
                             label={"Basic"}
                             data={treeData.basic_selection}
                         />
                         {/* generate select */}
                         <TreeSelectBase
-                            config={{ ...treeSelectPresets.default, treeDefaultExpandAll: true }}
+                            config={{ treeDefaultExpandAll: true }}
                             label={'Generate from tree data'}
                             data={treeData.generate_selection}
                         />
                         {/* asynchronous */}
                         <TreeSelectBase
-                            placeholder='Please select'
+                            config={{ treeDefaultExpandAll: true }}
                             label={'Asynchronous loading'}
                             data={treeData.async_loading_selection}
                         />
                         {/* placement */}
                         <TreeSelectBase
-                            config={{ ...treeSelectPresets.default, treeDefaultExpandAll: true }}
+                            config={{ treeDefaultExpandAll: true }}
                             label={'Placement'}
                             data={treeData.placement_selection}
                             showAllPlacement={true}
                         />
                         {/* status */}
                         <TreeSelectBase
-                            config={treeSelectPresets.default}
                             label={'Status'}
                             data={treeData.status_selection}
                             showStatus={true}
                         />
                         {/* prefix and suffix */}
                         <TreeSelectBase
-                            config={{ ...treeSelectPresets.default, treeDefaultExpandAll: true, prefix: 'prefix' }}
+                            config={{ treeDefaultExpandAll: true, prefix: 'prefix' }}
                             label={'Prefix and Suffix'}
                             data={treeData.prefix_suffix_selection}
                         />
                         {/* multiple select */}
                         <TreeSelectBase
-                            config={{ ...treeSelectPresets.default, multiple: true, treeDefaultExpandAll: true }}
+                            config={{ multiple: true, treeDefaultExpandAll: true }}
                             label={"Multiple Selection"}
                             data={treeData.multiple_selection}
                         />
                         {/* checkable */}
                         <TreeSelectBase
-                            config={{ ...treeSelectPresets.withCheckable, multiple: true, treeDefaultExpandAll: false, treeCheckable: true }}
+                            config={{ multiple: true, treeDefaultExpandAll: false, treeCheckable: true }}
                             label={'Checkable'}
                             data={treeData.checkable_selection}
                         />
                         {/* show tree line */}
                         <TreeSelectBase
-                            config={{ ...treeSelectPresets.default, treeDefaultExpandAll: false }}
+                            config={{ treeDefaultExpandAll: true, placeholder: "", treeLine: true }}
                             label={'Show Tree Line'}
-                            data={treeData.treeline_selction}
+                            data={treeData.treeline_selection}
                         />
                         {/* variants */}
                         <TreeSelectBase
-                            config={treeSelectPresets.default}
                             label={'Variants'}
                             data={treeData.variants_selection}
                             showAllVariant={true}
                         />
                         {/* max count */}
                         <TreeSelectBase
-                            config={{ ...treeSelectPresets.withCheckable, multiple: true, treeDefaultExpandAll: false, treeCheckable: true, maxCount: 1 }}
+                            config={{ multiple: true, treeDefaultExpandAll: false, treeCheckable: true, maxCount: 1 }}
                             label={'Max Count'}
                             data={treeData.max_count_selection}
                         />
