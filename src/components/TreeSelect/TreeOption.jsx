@@ -46,10 +46,6 @@ const TreeOption = ({ item, selected, onSelect, multiple, treeIcon, renderIcon, 
                             e.stopPropagation(); // Prevent handleClick
                             handleExpandCollapse(item.value);
                         }}>
-                        {/* {item.value === 'no data'
-                            ? renderIcon('faFileImage')
-                            : renderIcon(expandedNodes.has(item.value) ? 'faCaretDown' : 'faCaretRight') ||
-                            renderIcon(expandedNodes.has(item.value) ? 'faPlusSquare' : 'faCaretRight')} */}
                         {item.value === 'no data' ? (
                             renderIcon('faFileImage')
                         ) : treeLine ? (

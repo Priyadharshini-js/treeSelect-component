@@ -1,4 +1,4 @@
-/* //treeSelect css */
+/* treeSelect css starts*/
 .tree-sections {
     column-count: 2;
     margin-bottom: 1.5rem;
@@ -8,7 +8,9 @@
     break-inside: avoid;
 }
 
-/* //treeSelect card section css */
+/* treeSelect css ends */
+
+/* treeSelect card section css starts*/
 .tree-sections .card-section {
     border: 1px solid rgb(5 5 5 / 12%);
     border-radius: 8px;
@@ -21,13 +23,17 @@
     margin-top: 0;
 }
 
-/* //treeSelect container css */
+/* treeSelect card section css ends */
+
+/* treeSelect container css starts*/
 .tree-sections .tree-select-container {
     position: relative;
     margin-bottom: 15px;
 }
 
-/* //treeSelect input css */
+/* treeSelect container css ends */
+
+/* treeSelect input css starts */
 .tree-sections .tree-select-input,
 .tree-sections .tree-select-input:focus-visible {
     padding: 6px 8px;
@@ -35,7 +41,7 @@
     border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
-    width: 100%;
+    /* width: 100%; */
     overflow-y: auto;
     max-height: 120px;
     display: flex;
@@ -48,7 +54,6 @@
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
-    /* flex: 1; */
     overflow-y: auto;
 }
 
@@ -80,7 +85,9 @@
     color: #D0D0D0;
 }
 
-/* //treeSelect dropdown css */
+/* treeSelect input css ends */
+
+/* treeSelect dropdown css starts*/
 .tree-dropdown {
     position: absolute;
     top: 100%;
@@ -131,12 +138,9 @@
     background-color: #6d6b6b24;
 }
 
-/* .disabled .tree-select-input {
-    background-color: #f5f5f5;
-    cursor: not-allowed;
-} */
+/* treeSelect dropdown css ends */
 
-/* selected items css */
+/* selected items css starts*/
 .tree-select-container .selected-pill {
     background-color: #58697d17;
     padding: 3px 9px;
@@ -145,7 +149,9 @@
     text-wrap: nowrap;
 }
 
-/* variant css */
+/* selected items css ends */
+
+/* variant css starts*/
 .tree-sections .tree-select-container.outlined .tree-select-input {
     border: 1px solid #D0D0D0;
 }
@@ -173,6 +179,8 @@
     border: 1px solid #4096ff;
 }
 
+/* variant css ends */
+
 /* status css */
 
 .tree-sections .tree-select-container.error .tree-select-input {
@@ -182,6 +190,8 @@
 .tree-sections .tree-select-container.warning .tree-select-input {
     border: 1px solid #edaf08;
 }
+
+/* status css ends */
 
 /* placement css starts */
 .tree-sections .toggle-placement {
@@ -203,7 +213,24 @@
     padding: 6px 8px;
 }
 
-.tree-sections .tree-select-input.w-25+.dropdown-placement .tree-dropdown {
+.tree-sections .tree-select-input.large,
+.tree-sections .tree-select-input:focus-visible {
+    width: 100%;
+}
+
+.tree-sections .tree-select-input.middle,
+.tree-sections .tree-select-input:focus-visible {
+    width: 50%;
+}
+
+.tree-sections .tree-select-input.small,
+.tree-sections .tree-select-input:focus-visible {
+    width: 25%;
+}
+
+.tree-sections .tree-select-input.large+.dropdown-placement .tree-dropdown,
+.tree-sections .tree-select-input.middle+.dropdown-placement .tree-dropdown,
+.tree-sections .tree-select-input.small+.dropdown-placement .tree-dropdown {
     width: 50% !important;
 }
 
@@ -221,22 +248,28 @@
     border-bottom-right-radius: 8px;
 }
 
-.tree-sections .tree-select-input.w-25+.dropdown-placement.bottomRight .tree-dropdown {
+.tree-sections .tree-select-input.large+.dropdown-placement.bottomRight .tree-dropdown,
+.tree-sections .tree-select-input.middle+.dropdown-placement.bottomRight .tree-dropdown,
+.tree-sections .tree-select-input.small+.dropdown-placement.bottomRight .tree-dropdown {
     left: -50px !important;
     transform: translateX(-75px);
 }
 
-.tree-sections .tree-select-input.w-25+.dropdown-placement.topRight .tree-dropdown {
+.tree-sections .tree-select-input.large+.dropdown-placement.topRight .tree-dropdown,
+.tree-sections .tree-select-input.middle+.dropdown-placement.topRight .tree-dropdown,
+.tree-sections .tree-select-input.small+.dropdown-placement.topRight .tree-dropdown {
     left: -50px !important;
     transform: translateX(-75px);
     top: -171px;
 }
 
-.tree-sections .tree-select-input.w-25+.dropdown-placement.topLeft .tree-dropdown {
+.tree-sections .tree-select-input.large+.dropdown-placement.topLeft .tree-dropdown,
+.tree-sections .tree-select-input.middle+.dropdown-placement.topLeft .tree-dropdown,
+.tree-sections .tree-select-input.small+.dropdown-placement.topLeft .tree-dropdown {
     top: -171px;
 }
 
-
+/* placement css ends */
 
 
 /* show treeline css starts */
@@ -380,6 +413,8 @@
     transition: 0.3s ease all;
 }
 
+/* show treeline css ends */
+
 /* media query starts */
 
 @media (max-width: 768px) {
@@ -387,3 +422,5 @@
         column-count: 1;
     }
 }
+
+/* media query ends */

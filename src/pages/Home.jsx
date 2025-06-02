@@ -1,9 +1,70 @@
 import React from 'react'
 import TreeSelectBase from '../components/TreeSelect/TreeSelectBase';
 import { treeData } from '../components/config/treeData'
-// import { treeSelectPresets } from '../components/config/treeSelectProps'
 
 const TreeSelectReusableComponent = () => {
+
+    const props = [
+        {
+            label: 'Basic',
+            config: { treeDefaultExpandAll: true, placement: 'bottomLeft', size: 'large', variant: 'outlined' },
+            data: treeData.basic_selection,
+        },
+        {
+            label: 'Generate from tree data',
+            config: { treeDefaultExpandAll: true, placement: 'bottomLeft', size: 'large', variant: 'outlined' },
+            data: treeData.generate_selection,
+        },
+        {
+            label: 'Asynchronous loading',
+            config: { treeDefaultExpandAll: true, placement: 'bottomLeft', size: 'large', variant: 'outlined' },
+            data: treeData.async_loading_selection,
+        },
+        {
+            label: 'Placement',
+            config: { treeDefaultExpandAll: true, variant: 'outlined', size: 'small', },
+            data: treeData.placement_selection,
+            showAllPlacement: true,
+        },
+        {
+            label: 'Status',
+            config: { placement: 'bottomLeft', size: 'large', variant: 'outlined' },
+            data: treeData.status_selection,
+            showStatus: true,
+        },
+        {
+            label: 'Prefix and Suffix',
+            config: { treeDefaultExpandAll: true, prefix: 'prefix', placement: 'bottomLeft', size: 'large', variant: 'outlined' },
+            data: treeData.prefix_suffix_selection,
+        },
+        {
+            label: 'Multiple Selection',
+            config: { multiple: true, treeDefaultExpandAll: true, placement: 'bottomLeft', size: 'large', variant: 'outlined' },
+            data: treeData.multiple_selection,
+        },
+        {
+            label: 'Checkable',
+            config: { multiple: true, treeCheckable: true, placement: 'bottomLeft', size: 'large', variant: 'outlined' },
+            data: treeData.checkable_selection,
+        },
+        {
+            label: 'Show Tree Line',
+            config: { treeDefaultExpandAll: true, placeholder: "", treeLine: true, placement: 'bottomLeft', size: 'large', variant: 'outlined' },
+            data: treeData.treeline_selection,
+        },
+        {
+            label: 'Variants',
+            config: { multiple: true, treeCheckable: true, placement: 'bottomLeft', size: 'large' },
+            data: treeData.variants_selection,
+            showAllVariant: true
+        },
+        {
+            label: 'Max Count',
+            config: { multiple: true, treeCheckable: true, maxCount: 1, placement: 'bottomLeft', size: 'large', variant: 'outlined' },
+            data: treeData.max_count_selection,
+        },
+
+    ]
     return (
         <>
             <section>
@@ -13,73 +74,17 @@ const TreeSelectReusableComponent = () => {
                         <h4>Examples</h4>
                     </div>
                     <div className='tree-sections'>
-                        {/* basic tree select */}
-                        <TreeSelectBase
-                            config={{ treeDefaultExpandAll: true }}
-                            label={"Basic"}
-                            data={treeData.basic_selection}
-                        />
-                        {/* generate select */}
-                        <TreeSelectBase
-                            config={{ treeDefaultExpandAll: true }}
-                            label={'Generate from tree data'}
-                            data={treeData.generate_selection}
-                        />
-                        {/* asynchronous */}
-                        <TreeSelectBase
-                            config={{ treeDefaultExpandAll: true }}
-                            label={'Asynchronous loading'}
-                            data={treeData.async_loading_selection}
-                        />
-                        {/* placement */}
-                        <TreeSelectBase
-                            config={{ treeDefaultExpandAll: true }}
-                            label={'Placement'}
-                            data={treeData.placement_selection}
-                            showAllPlacement={true}
-                        />
-                        {/* status */}
-                        <TreeSelectBase
-                            label={'Status'}
-                            data={treeData.status_selection}
-                            showStatus={true}
-                        />
-                        {/* prefix and suffix */}
-                        <TreeSelectBase
-                            config={{ treeDefaultExpandAll: true, prefix: 'prefix' }}
-                            label={'Prefix and Suffix'}
-                            data={treeData.prefix_suffix_selection}
-                        />
-                        {/* multiple select */}
-                        <TreeSelectBase
-                            config={{ multiple: true, treeDefaultExpandAll: true }}
-                            label={"Multiple Selection"}
-                            data={treeData.multiple_selection}
-                        />
-                        {/* checkable */}
-                        <TreeSelectBase
-                            config={{ multiple: true, treeDefaultExpandAll: false, treeCheckable: true }}
-                            label={'Checkable'}
-                            data={treeData.checkable_selection}
-                        />
-                        {/* show tree line */}
-                        <TreeSelectBase
-                            config={{ treeDefaultExpandAll: true, placeholder: "", treeLine: true }}
-                            label={'Show Tree Line'}
-                            data={treeData.treeline_selection}
-                        />
-                        {/* variants */}
-                        <TreeSelectBase
-                            label={'Variants'}
-                            data={treeData.variants_selection}
-                            showAllVariant={true}
-                        />
-                        {/* max count */}
-                        <TreeSelectBase
-                            config={{ multiple: true, treeDefaultExpandAll: false, treeCheckable: true, maxCount: 1 }}
-                            label={'Max Count'}
-                            data={treeData.max_count_selection}
-                        />
+                        {props.map((item, index) => (
+                            <TreeSelectBase
+                                key={item.label}
+                                label={item.label}
+                                data={item.data}
+                                config={item.config}
+                                showAllPlacement={item.showAllPlacement}
+                                showAllVariant={item.showAllVariant}
+                                showStatus={item.showStatus}
+                            />
+                        ))}
                     </div>
                 </div>
             </section >

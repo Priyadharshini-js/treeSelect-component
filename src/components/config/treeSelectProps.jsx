@@ -6,7 +6,7 @@ export const baseConfig = {
     disabled: false, //boolean
     labelInValue: false, //boolean
     multiple: false, //boolean
-    size: "middle", // "large | middle | small", //string
+    size: ["middle", "large", "middle", "small"], //string
     treeCheckable: false, //boolean
     showSearch: false, //boolean
     virtual: true, //boolean

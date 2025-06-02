@@ -22,16 +22,15 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
         status,
         maxCount,
         treeLine,
+        size,
     } = mergedConfig;
 
-    const defaultVariant = 'outlined';
-    const defaultPlacement = 'bottomLeft';
 
 
-    const [isOpen, setIsOpen] = useState({});
+    const [isOpen, setIsOpen] = useState(null);
     const [selected, setSelected] = useState(multiple ? [] : null);
     const [expandedNodes, setExpandedNodes] = useState(new Set());
-    const [currentPlacement, setCurrentPlacement] = useState(defaultPlacement);
+    const [currentPlacement, setCurrentPlacement] = useState(placement[0]);
     const [disabledValues, setDisabledValues] = useState(new Set());
 
     const treeDataSet = data || treeData.basic_selection;
@@ -320,7 +319,7 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
 
 
     //variant type [borderless, filled, outlined, underlined]
-    const renderVariant = (variantType) => {
+    const renderVariant = (variantType, size, placement) => {
         const isOpenForThis = isOpen === variantType;
         return (
             <div
@@ -329,7 +328,7 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
                 className={`tree-select-container ${variantType} ${disabled ? 'disabled' : ''}`}
             >
                 <div
-                    className={`tree-select-input ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
+                    className={`tree-select-input  ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
                     onClick={() => toggleDropdown(variantType)}
                 >
                     <div className="selected-content">
@@ -340,36 +339,39 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
                     </span>
                 </div>
                 {isOpenForThis && (
-                    <TreeDropdown
-                        data={treeDataSet}
-                        selected={selected}
-                        onSelect={handleSelect}
-                        multiple={multiple}
-                        treeIcon={treeIcon}
-                        renderIcon={renderIcon}
-                        treeCheckable={treeCheckable}
-                        expandedNodes={expandedNodes}
-                        handleExpandCollapse={handleExpandCollapse}
-                        disabledValues={disabledValues}
-                        treeLine={treeLine}
-                    />
-                )}
+                    <div className={`dropdown-placement ${placement}`}>
+                        <TreeDropdown
+                            data={treeDataSet}
+                            selected={selected}
+                            onSelect={handleSelect}
+                            multiple={multiple}
+                            treeIcon={treeIcon}
+                            renderIcon={renderIcon}
+                            treeCheckable={treeCheckable}
+                            expandedNodes={expandedNodes}
+                            handleExpandCollapse={handleExpandCollapse}
+                            disabledValues={disabledValues}
+                            treeLine={treeLine}
+                        />
+                    </div>
+                )
+                }
 
-            </div>
+            </div >
         )
     };
 
     //status type [ error, warning]
-    const renderShowStatus = (statusType) => {
+    const renderShowStatus = (statusType, size, placement, variant) => {
         const isOpenForThis = isOpen === statusType;
         return (
             <div
                 ref={containerRef}
                 key={statusType}
-                className={`tree-select-container ${statusType} ${disabled ? 'disabled' : ''}`}
+                className={`tree-select-container ${statusType} ${variant} ${disabled ? 'disabled' : ''}`}
             >
                 <div
-                    className={`tree-select-input ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
+                    className={`tree-select-input  ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
                     onClick={() => toggleDropdown(statusType)}
                 >
                     <div className="selected-content">
@@ -380,31 +382,33 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
                     </span>
                 </div>
                 {isOpenForThis && (
-                    <TreeDropdown
-                        data={treeDataSet}
-                        selected={selected}
-                        onSelect={handleSelect}
-                        multiple={multiple}
-                        treeIcon={treeIcon}
-                        renderIcon={renderIcon}
-                        treeCheckable={treeCheckable}
-                        expandedNodes={expandedNodes}
-                        handleExpandCollapse={handleExpandCollapse}
-                        treeLine={treeLine}
-                    />
+                    <div className={`dropdown-placement ${placement}`}>
+                        <TreeDropdown
+                            data={treeDataSet}
+                            selected={selected}
+                            onSelect={handleSelect}
+                            multiple={multiple}
+                            treeIcon={treeIcon}
+                            renderIcon={renderIcon}
+                            treeCheckable={treeCheckable}
+                            expandedNodes={expandedNodes}
+                            handleExpandCollapse={handleExpandCollapse}
+                            treeLine={treeLine}
+                        />
+                    </div>
                 )}
             </div>
         )
     };
 
     // prefix
-    const renderAffixes = () => (
+    const renderAffixes = (placement, size, variant) => (
         <div
             ref={containerRef}
-            className={`tree-select-container ${disabled ? 'disabled' : ''}`}
+            className={`tree-select-container ${variant} ${disabled ? 'disabled' : ''}`}
         >
             <div
-                className={`tree-select-input ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
+                className={`tree-select-input  ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
                 onClick={toggleDropdown}
             >
                 <div className="selected-content">
@@ -416,23 +420,25 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
             </div>
 
             {isOpen && (
-                <TreeDropdown
-                    data={treeDataSet}
-                    selected={selected}
-                    onSelect={handleSelect}
-                    multiple={multiple}
-                    treeIcon={treeIcon}
-                    renderIcon={renderIcon}
-                    treeCheckable={treeCheckable}
-                    expandedNodes={expandedNodes}
-                    handleExpandCollapse={handleExpandCollapse}
-                    treeLine={treeLine}
-                />
+                <div className={`dropdown-placement ${placement}`}>
+                    <TreeDropdown
+                        data={treeDataSet}
+                        selected={selected}
+                        onSelect={handleSelect}
+                        multiple={multiple}
+                        treeIcon={treeIcon}
+                        renderIcon={renderIcon}
+                        treeCheckable={treeCheckable}
+                        expandedNodes={expandedNodes}
+                        handleExpandCollapse={handleExpandCollapse}
+                        treeLine={treeLine}
+                    />
+                </div>
             )}
 
             <input
                 type="text"
-                className="prefix-input mt-2 tree-select-input"
+                className={`prefix-input mt-2 tree-select-input ${size} `}
                 onClick={toggleDropdown}
                 readOnly
                 value={`Prefix: ${isPlaceholderVisible
@@ -449,7 +455,7 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
     );
 
     // placement type [topright, topleft, bottomleft, bottomright]
-    const renderPlacement = (placementType) => (
+    const renderPlacement = (placementType, variant, size) => (
         <>
             <div className='toggle-placement'>
                 {placement.map(p => (
@@ -465,10 +471,10 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
             <div
                 ref={containerRef}
                 key={placementType}
-                className={`tree-select-container ${disabled ? 'disabled' : ''}`}
+                className={`tree-select-container ${variant} ${disabled ? 'disabled' : ''}`}
             >
                 <div
-                    className={`tree-select-input w-25 ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
+                    className={`tree-select-input ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
                     onClick={toggleDropdown}
                 >
                     <div className="selected-content">
@@ -500,7 +506,7 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
     )
 
     // tree line (show tree line)
-    const renderTreeLine = () => {
+    const renderTreeLine = (variant, size, placement) => {
         const isOpenForThis = isOpen === 'treeLine';
         return (
             <>
@@ -535,11 +541,11 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
                 </div>
                 < div
                     ref={containerRef}
-                    className={`tree-select-container ${disabled ? 'disabled' : ''}`
+                    className={`tree-select-container ${variant} ${disabled ? 'disabled' : ''}`
                     }
                 >
                     <div
-                        className={`tree-select-input ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
+                        className={`tree-select-input ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
                         onClick={() => toggleDropdown('treeLine')}
                     >
                         <div className="selected-content">
@@ -551,19 +557,21 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
                     </div>
                     {
                         isOpenForThis && (
-                            <TreeDropdown
-                                data={treeDataSet}
-                                selected={selected}
-                                onSelect={handleSelect}
-                                multiple={multiple}
-                                treeIcon={treeIcon}
-                                renderIcon={renderIcon}
-                                treeCheckable={treeCheckable}
-                                expandedNodes={expandedNodes}
-                                handleExpandCollapse={handleExpandCollapse}
-                                disabledValues={disabledValues}
-                                treeLine={treeLine}
-                            />
+                            <div className={`dropdown-placement ${placement}`}>
+                                <TreeDropdown
+                                    data={treeDataSet}
+                                    selected={selected}
+                                    onSelect={handleSelect}
+                                    multiple={multiple}
+                                    treeIcon={treeIcon}
+                                    renderIcon={renderIcon}
+                                    treeCheckable={treeCheckable}
+                                    expandedNodes={expandedNodes}
+                                    handleExpandCollapse={handleExpandCollapse}
+                                    disabledValues={disabledValues}
+                                    treeLine={treeLine}
+                                />
+                            </div>
                         )
                     }
 
@@ -578,17 +586,17 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
             <div className='card-body'>
                 <p>{label}</p>
                 {(showStatus) ? (
-                    status.map((s) => renderShowStatus(s))
+                    status.map((s) => renderShowStatus(s, size, placement, variant))
                 ) : (showAllVariant) ? (
-                    variant.map((v) => renderVariant(v))
+                    variant.map((v) => renderVariant(v, size, placement))
                 ) : (prefix) ? (
-                    renderAffixes()
+                    renderAffixes(placement, size, variant)
                 ) : (showAllPlacement) ? (
-                    renderPlacement()
+                    renderPlacement(currentPlacement, variant, size)
                 ) : (treeLine) ? (
-                    renderTreeLine()
+                    renderTreeLine(variant, size, placement)
                 ) : (
-                    renderVariant(defaultVariant)
+                    renderVariant(variant, size, placement)
                 )}
             </div>
         </div>
