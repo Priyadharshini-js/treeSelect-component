@@ -1,12 +1,25 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react'
 import TreeDropdown from './TreeDropdown'
-import { treeData } from '../config/treeData'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faAngleDown, faSearch, faCaretDown, faCaretRight, faFileImage, faPlusSquare, faMinusSquare } from '@fortawesome/free-solid-svg-icons'
+import {
+    faAngleDown,
+    faSearch,
+    faCaretDown,
+    faCaretRight,
+    faFileImage,
+    faPlusSquare,
+    faMinusSquare
+} from '@fortawesome/free-solid-svg-icons'
 import { baseConfig } from '../config/treeSelectProps'
 
 
-const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, showStatus = false, showAllPlacement = false }) => {
+const TreeSelectBase = ({ config = {},
+    label,
+    data,
+    showAllVariant = false,
+    showStatus = false,
+    showAllPlacement = false
+}) => {
     const containerRef = useRef(null);
     const mergedConfig = { ...baseConfig, ...config };
     const {
@@ -25,16 +38,12 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
         size,
     } = mergedConfig;
 
-
-
     const [isOpen, setIsOpen] = useState(null);
     const [selected, setSelected] = useState(multiple ? [] : null);
     const [expandedNodes, setExpandedNodes] = useState(new Set());
     const [currentPlacement, setCurrentPlacement] = useState(placement[0]);
     const [disabledValues, setDisabledValues] = useState(new Set());
-
-    const treeDataSet = data || treeData.basic_selection;
-
+    const treeDataSet = data;
 
     const treeIcon = {
         'faAngleDown': faAngleDown,
@@ -46,32 +55,33 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
         'faMinusSquare': faMinusSquare
     }
 
+    //function to render icon
     const renderIcon = (type) => {
         const icon = treeIcon[type];
         return icon ? <FontAwesomeIcon icon={icon} /> : null;
     };
 
-
-    const toggleDropdown = (id) => {
+    //function to toggle dropdown
+    const toggleDropdown = (id) => { //id for which dropdown to open
         if (disabled) return;
 
         if (isOpen === id) {
             setIsOpen(null); // close if already open
         } else {
-            if (treeDefaultExpandAll) {
+            if (treeDefaultExpandAll) { // if expand all is true
                 const allParentValues = new Set();
                 const findParents = (nodes) => {
                     nodes.forEach(node => {
                         if (node.children && node.children.length > 0) {
-                            allParentValues.add(node.value);
-                            findParents(node.children);
+                            allParentValues.add(node.value); // add parent value
+                            findParents(node.children); // find parent of children
                         }
                     });
                 };
-                findParents(treeDataSet);
-                setExpandedNodes(allParentValues);
+                findParents(treeDataSet); // find all parent values
+                setExpandedNodes(allParentValues); // set expanded nodes
             } else {
-                setExpandedNodes(new Set());
+                setExpandedNodes(new Set()); // reset expanded nodes
             }
             setIsOpen(id); // open the clicked dropdown
         }
@@ -102,31 +112,22 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
             return;
         }
 
-        if (treeCheckable) {
-            const collectAllChildValues = (node) => {
-                const values = [node.value];
-                if (node.children) {
-                    node.children.forEach(child => {
-                        values.push(...collectAllChildValues(child));
-                    });
-                }
-                return values;
-            };
+        const collectAllChildValues = (node) => {
+            const values = [node.value];
+            if (node.children) {
+                node.children.forEach(child => {
+                    values.push(...collectAllChildValues(child));
+                });
+            }
+            return values;
+        };
 
+        if (treeCheckable) {
+            //multiple & checkable
             const toggleWithChildren = (node) => {
                 setSelected(prev => {
                     const selectedSet = new Set(prev);
                     const value = node.value;
-
-                    const collectAllChildValues = (node) => {
-                        const values = [node.value];
-                        if (node.children) {
-                            node.children.forEach(child => {
-                                values.push(...collectAllChildValues(child));
-                            });
-                        }
-                        return values;
-                    };
 
                     if (selectedSet.has(value)) {
                         // Deselect node and children
@@ -174,25 +175,22 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
                     } else {
                         setDisabledValues(new Set());
                     }
-
                     onChange?.(finalSelected);
                     return finalSelected;
                 });
             };
-
             toggleWithChildren(item);
         } else {
-            // Normal multiple behavior (no recursion)
+            //if multiple but not checkable
             setSelected(prev => {
-                const updated = prev.includes(item.value)
-                    ? prev.filter(val => val !== item.value)
-                    : [...prev, item.value];
+                const updated = prev.includes(item.value) // check if item is already selected
+                    ? prev.filter(val => val !== item.value) // remove item
+                    : [...prev, item.value]; // add item
                 onChange?.(updated);
                 return updated;
             });
         }
     };
-
 
     const collapseSelectedWithParents = (selectedValues, nodes) => {
         // Convert selected to Set for easier checking
@@ -249,9 +247,6 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
     };
 
 
-
-    // const isExpanded = expandedNodes.has(item.value);
-
     const handleExpandCollapse = (value) => {
         setExpandedNodes(prev => {
             const newSet = new Set(prev);
@@ -264,6 +259,7 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
         });
     };
 
+    //handle outside click
     const handleClickOutside = (e) => {
         if (containerRef.current && !containerRef.current.contains(e.target)) {
             setIsOpen(false);
@@ -275,26 +271,26 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    // Flatten all levels to match selected values with their titles, to retrieve all nested items for rendering selected labels and values.
+    // Flatten all levels to match selected values with their titles.
     const flattenData = (nodes) => {
-        return nodes.flatMap(node => {
+        return nodes.flatMap(node => { // flatten - combination of map and flat, which gives a flat single array
             const children = node.children ? flattenData(node.children) : [];
-            return [node, ...children];
+            return [node, ...children]; // return node and children
         });
     };
 
-    // const flatData = flattenData(treeDataSet);
+    // if treeDataSet changes then flatten again 
     const flatData = useMemo(() => flattenData(treeDataSet), [treeDataSet]);
 
 
-
+    // selected mmulitple or single
     const collapsedSelected = multiple && treeCheckable
         ? collapseSelectedWithParents(selected, treeDataSet)
         : selected;
 
-    const selectedLabel = multiple
+    const selectedLabel = multiple // Multiple
         ? collapsedSelected.map(value => {
-            const item = flatData.find(i => i.value === value);
+            const item = flatData.find(i => i.value === value); //why flatData find, becz flatData is already flattened(having children)
             return (
                 <span key={value} className="selected-pill">
                     {item?.title}
@@ -312,7 +308,7 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
                 </span>
             );
         })
-        : flatData.find(item => item.value === selected)?.title || placeholder;
+        : flatData.find(item => item.value === selected)?.title || placeholder; // Find the selected item (not multiple, single) and display its title
 
     const isPlaceholderVisible =
         (!multiple && !selected) || (multiple && selected.length === 0);
@@ -328,7 +324,7 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
                 className={`tree-select-container ${variantType} ${disabled ? 'disabled' : ''}`}
             >
                 <div
-                    className={`tree-select-input  ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
+                    className={`tree-select-input ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
                     onClick={() => toggleDropdown(variantType)}
                 >
                     <div className="selected-content">
@@ -354,9 +350,7 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
                             treeLine={treeLine}
                         />
                     </div>
-                )
-                }
-
+                )}
             </div >
         )
     };
@@ -401,14 +395,14 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
         )
     };
 
-    // prefix
+    // render prefix
     const renderAffixes = (placement, size, variant) => (
         <div
             ref={containerRef}
             className={`tree-select-container ${variant} ${disabled ? 'disabled' : ''}`}
         >
             <div
-                className={`tree-select-input  ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
+                className={`tree-select-input ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
                 onClick={toggleDropdown}
             >
                 <div className="selected-content">
@@ -438,7 +432,7 @@ const TreeSelectBase = ({ config = {}, label, data, showAllVariant = false, show
 
             <input
                 type="text"
-                className={`prefix-input mt-2 tree-select-input ${size} `}
+                className={`mt-2 tree-select-input ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''} `}
                 onClick={toggleDropdown}
                 readOnly
                 value={`Prefix: ${isPlaceholderVisible

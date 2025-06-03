@@ -2,7 +2,7 @@ import React from 'react'
 import TreeSelectBase from '../components/TreeSelect/TreeSelectBase';
 import { treeData } from '../components/config/treeData'
 
-const TreeSelectReusableComponent = () => {
+const TreeSelect = () => {
 
     const props = [
         {
@@ -91,4 +91,4 @@ const TreeSelectReusableComponent = () => {
         </>
     )
 }
-export default TreeSelectReusableComponent
+export default TreeSelect

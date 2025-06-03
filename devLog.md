@@ -36,6 +36,50 @@ src/
 
 
 
+## unused props
+ treeData: [],
+    allowClear: false, //boolean
+    labelInValue: false, //boolean
+    showSearch: false, //boolean
+    virtual: true, //boolean
+    treeNodeFilterProp: "value", //string
+    treeNodeLabelProp: "title", //string
+    value: undefined, //string
+    defaultValue: undefined, //string
+    open: undefined, //boolean
+    defaultOpen: false, //boolean
+    autoClearSearchValue: false, //boolean
+    popupMatchSelectWidth: undefined, //boolean or number
+    popupRender: undefined, //function
+    fieldNames: undefined, //object
+    filterTreeNode: undefined, //function
+    getPopupContainer: undefined, //function
+    listHeight: undefined, //number
+    loadData: undefined, //function
+    maxTagCount: undefined, //number
+    maxTagPlaceholder: undefined, //function
+    maxTagTextLength: undefined, //number
+    notFoundContent: undefined, //react node
+    searchValue: undefined, //string
+    showCheckedStrategy: "TreeSelect.SHOW_ALL", // TreeSelect.SHOW_PARENT | TreeSelect.SHOW_CHILD, //string
+    suffixIcon: undefined, //string or react node
+    switcherIcon: undefined, //string or react node
+    tagRender: undefined, //function
+    treeCheckStrictly: false, //boolean
+    treeDataSimpleMode: false, //boolean
+    treeTitleRender: undefined, //function
+    treeDefaultExpandedKeys: [], //string[]
+    treeExpandAction: false, //string or boolean
+    treeExpandedKeys: [], //string[]
+    treeIcon: false, //boolean
+    treeLoadedKeys: [], //string[]
+    onSearch: undefined, //function
+    onSelect: undefined, //function
+    onTreeExpand: undefined, //function
+    onPopupScroll: undefined, //function
+
+
+
 
 
   
