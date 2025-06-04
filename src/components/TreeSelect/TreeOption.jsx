@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react'
 
 const TreeOption = ({ item, selected, onSelect, multiple, treeIcon, renderIcon, treeCheckable, expandedNodes, handleExpandCollapse, disabledValues, treeLine }) => {
-    const checkboxRef = useRef();
+    const checkboxRef = useRef(); // used for indeterminate
     const isDisabled = disabledValues?.has(item.value) || item.value === 'no data';
 
 
@@ -20,10 +20,10 @@ const TreeOption = ({ item, selected, onSelect, multiple, treeIcon, renderIcon, 
     const allChildren = collectAllChildValues(item);
 
     // Determine selection states
-    const allSelected = allChildren.length > 0 && allChildren.every((val) => selectedArr.includes(val));
-    const anySelected = allChildren.some((val) => selectedArr.includes(val));
-    const isChecked = selectedArr.includes(item.value) || allSelected;
-    const isIndeterminate = anySelected && !allSelected;
+    const allSelected = allChildren.length > 0 && allChildren.every((val) => selectedArr.includes(val)); // Check if all children are selected
+    const anySelected = allChildren.some((val) => selectedArr.includes(val)); // Check if any children are selected
+    const isChecked = selectedArr.includes(item.value) || allSelected; // Check if node itself is selected or all children are selected
+    const isIndeterminate = anySelected && !allSelected; // Check if some children are selected not all to indicate indeterminate
 
     useEffect(() => {
         if (checkboxRef.current) {
@@ -56,7 +56,7 @@ const TreeOption = ({ item, selected, onSelect, multiple, treeIcon, renderIcon, 
 
                     </span>
                 )}
-                {treeCheckable && <input type="checkbox" readOnly checked={isChecked} disabled={isDisabled}
+                {treeCheckable && item.value !== 'no data' && <input type="checkbox" readOnly checked={isChecked} disabled={isDisabled}
                     ref={checkboxRef} />}
                 {item.title}
             </div>

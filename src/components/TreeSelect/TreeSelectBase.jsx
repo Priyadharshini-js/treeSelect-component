@@ -104,6 +104,60 @@ const TreeSelectBase = ({ config = {},
         return map;
     }, [treeDataSet]);
 
+
+    const collapseSelectedWithParents = (selectedValues, nodes) => {
+        // Convert selected to Set for easier checking
+        const selectedSet = new Set(selectedValues);
+
+        const helper = (node) => {
+            if (!node.children || node.children.length === 0) {
+                // Leaf node, return if selected or not
+                return selectedSet.has(node.value) ? [node.value] : [];
+            }
+
+            // For parents: check all children recursively
+            const childrenSelections = node.children.flatMap(child => helper(child));
+
+            // Check if all children are selected (collapsed)
+            const allChildrenSelected = node.children.every(child => {
+                return selectedSet.has(child.value) || childrenSelections.includes(child.value);
+            });
+
+            if (allChildrenSelected) {
+                // If all children selected, return only parent value
+                return [node.value];
+            }
+
+            // Otherwise, return collected children selections
+            return childrenSelections;
+        };
+
+        // Run for all root nodes and flatten
+        const collapsed = nodes.flatMap(node => helper(node));
+
+        // Remove duplicates just in case
+        return Array.from(new Set(collapsed));
+    };
+
+    // function to get top level selected(like parent)
+    const getTopLevelSelected = (selectedValues, nodes) => {
+        const selectedSet = new Set(selectedValues);
+        const result = [];
+
+        const isFullySelected = (node) => {
+            if (!node.children || node.children.length === 0) return selectedSet.has(node.value);
+
+            return node.children.every(child => isFullySelected(child));
+        };
+        nodes.forEach(node => {
+            if (isFullySelected(node)) {
+                result.push(node.value);
+            }
+        });
+
+        return result;
+    };
+
     const handleSelect = (item) => {
         if (!multiple) {
             setSelected(item.value);
@@ -192,70 +246,16 @@ const TreeSelectBase = ({ config = {},
         }
     };
 
-    const collapseSelectedWithParents = (selectedValues, nodes) => {
-        // Convert selected to Set for easier checking
-        const selectedSet = new Set(selectedValues);
-
-        const helper = (node) => {
-            if (!node.children || node.children.length === 0) {
-                // Leaf node, return if selected or not
-                return selectedSet.has(node.value) ? [node.value] : [];
-            }
-
-            // For parents: check all children recursively
-            const childrenSelections = node.children.flatMap(child => helper(child));
-
-            // Check if all children are selected (collapsed)
-            const allChildrenSelected = node.children.every(child => {
-                return selectedSet.has(child.value) || childrenSelections.includes(child.value);
-            });
-
-            if (allChildrenSelected) {
-                // If all children selected, return only parent value
-                return [node.value];
-            }
-
-            // Otherwise, return collected children selections
-            return childrenSelections;
-        };
-
-        // Run for all root nodes and flatten
-        const collapsed = nodes.flatMap(node => helper(node));
-
-        // Remove duplicates just in case
-        return Array.from(new Set(collapsed));
-    };
-
-
-    const getTopLevelSelected = (selectedValues, nodes) => {
-        const selectedSet = new Set(selectedValues);
-        const result = [];
-
-        const isFullySelected = (node) => {
-            if (!node.children || node.children.length === 0) return selectedSet.has(node.value);
-
-            return node.children.every(child => isFullySelected(child));
-        };
-
-        nodes.forEach(node => {
-            if (isFullySelected(node)) {
-                result.push(node.value);
-            }
-        });
-
-        return result;
-    };
-
-
+    // handle expand collapse
     const handleExpandCollapse = (value) => {
-        setExpandedNodes(prev => {
+        setExpandedNodes(prev => { // copy the previous expanded nodes
             const newSet = new Set(prev);
             if (newSet.has(value)) {
-                newSet.delete(value);
+                newSet.delete(value); // collapse it if already expanded
             } else {
-                newSet.add(value);
+                newSet.add(value); // expand it otherwise
             }
-            return newSet;
+            return newSet; // update the state with the new set
         });
     };
 
@@ -315,13 +315,13 @@ const TreeSelectBase = ({ config = {},
 
 
     //variant type [borderless, filled, outlined, underlined]
-    const renderVariant = (variantType, size, placement) => {
+    const renderVariant = (variantType, size, placement, status) => {
         const isOpenForThis = isOpen === variantType;
         return (
             <div
                 ref={containerRef}
                 key={variantType}
-                className={`tree-select-container ${variantType} ${disabled ? 'disabled' : ''}`}
+                className={`tree-select-container ${variantType} ${status} ${disabled ? 'disabled' : ''}`}
             >
                 <div
                     className={`tree-select-input ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
@@ -396,10 +396,10 @@ const TreeSelectBase = ({ config = {},
     };
 
     // render prefix
-    const renderAffixes = (placement, size, variant) => (
+    const renderAffixes = (placement, size, variant, status) => (
         <div
             ref={containerRef}
-            className={`tree-select-container ${variant} ${disabled ? 'disabled' : ''}`}
+            className={`tree-select-container ${variant} ${status} ${disabled ? 'disabled' : ''}`}
         >
             <div
                 className={`tree-select-input ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
@@ -449,7 +449,7 @@ const TreeSelectBase = ({ config = {},
     );
 
     // placement type [topright, topleft, bottomleft, bottomright]
-    const renderPlacement = (placementType, variant, size) => (
+    const renderPlacement = (placementType, variant, size, status) => (
         <>
             <div className='toggle-placement'>
                 {placement.map(p => (
@@ -465,7 +465,7 @@ const TreeSelectBase = ({ config = {},
             <div
                 ref={containerRef}
                 key={placementType}
-                className={`tree-select-container ${variant} ${disabled ? 'disabled' : ''}`}
+                className={`tree-select-container ${variant} ${status} ${disabled ? 'disabled' : ''}`}
             >
                 <div
                     className={`tree-select-input ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
@@ -500,7 +500,7 @@ const TreeSelectBase = ({ config = {},
     )
 
     // tree line (show tree line)
-    const renderTreeLine = (variant, size, placement) => {
+    const renderTreeLine = (variant, size, placement, status) => {
         const isOpenForThis = isOpen === 'treeLine';
         return (
             <>
@@ -535,7 +535,7 @@ const TreeSelectBase = ({ config = {},
                 </div>
                 < div
                     ref={containerRef}
-                    className={`tree-select-container ${variant} ${disabled ? 'disabled' : ''}`
+                    className={`tree-select-container ${variant} ${status} ${disabled ? 'disabled' : ''}`
                     }
                 >
                     <div
@@ -580,17 +580,17 @@ const TreeSelectBase = ({ config = {},
             <div className='card-body'>
                 <p>{label}</p>
                 {(showStatus) ? (
-                    status.map((s) => renderShowStatus(s, size, placement, variant))
+                    status.map((s) => renderShowStatus(s, size, placement, variant, status))
                 ) : (showAllVariant) ? (
-                    variant.map((v) => renderVariant(v, size, placement))
+                    variant.map((v) => renderVariant(v, size, placement, status))
                 ) : (prefix) ? (
-                    renderAffixes(placement, size, variant)
+                    renderAffixes(placement, size, variant, status)
                 ) : (showAllPlacement) ? (
-                    renderPlacement(currentPlacement, variant, size)
+                    renderPlacement(currentPlacement, variant, size, status)
                 ) : (treeLine) ? (
-                    renderTreeLine(variant, size, placement)
+                    renderTreeLine(variant, size, placement, status)
                 ) : (
-                    renderVariant(variant, size, placement)
+                    renderVariant(variant, size, placement, status)
                 )}
             </div>
         </div>
