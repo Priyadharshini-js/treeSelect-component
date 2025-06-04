@@ -54,7 +54,7 @@ const TreeSelect = () => {
         },
         {
             label: 'Variants',
-            config: { multiple: true, treeCheckable: true, placement: 'bottomLeft', size: 'large' },
+            config: { multiple: true, placement: 'bottomLeft', size: 'large' },
             data: treeData.variants_selection,
             showAllVariant: true
         },

@@ -251,7 +251,7 @@ const TreeSelectBase = ({ config = {},
         setExpandedNodes(prev => { // copy the previous expanded nodes
             const newSet = new Set(prev);
             if (newSet.has(value)) {
-                newSet.delete(value); // collapse it if already expanded
+                newSet.delete(value); // collapse it if already expanded, removes the node from the set
             } else {
                 newSet.add(value); // expand it otherwise
             }

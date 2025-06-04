@@ -56,7 +56,7 @@ const TreeOption = ({ item, selected, onSelect, multiple, treeIcon, renderIcon, 
 
                     </span>
                 )}
-                {treeCheckable && item.value !== 'no data' && <input type="checkbox" readOnly checked={isChecked} disabled={isDisabled}
+                {treeCheckable && <input type="checkbox" readOnly checked={isChecked} disabled={isDisabled}
                     ref={checkboxRef} />}
                 {item.title}
             </div>
