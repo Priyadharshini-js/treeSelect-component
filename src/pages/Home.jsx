@@ -18,11 +18,6 @@ const TreeSelect = () => {
             data: treeData.generate_selection,
         },
         {
-            label: 'Asynchronous loading',
-            config: { treeDefaultExpandAll: true, placement: 'bottomLeft', size: 'large', variant: 'outlined' },
-            data: treeData.async_loading_selection,
-        },
-        {
             label: 'Placement',
             config: { treeDefaultExpandAll: true, variant: 'outlined', size: 'small', },
             data: treeData.placement_selection,

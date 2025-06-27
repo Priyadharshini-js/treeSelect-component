@@ -16,7 +16,7 @@ class ErrorBoundary extends React.Component {
 
     render() {
         if (this.state.hasError) {
-            return <h1>Cannot reload the page.</h1>;
+            return <h1>Cannot reload the component.</h1>;
         }
         return this.props.children;
     }
