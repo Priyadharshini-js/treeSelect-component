@@ -1,3 +1,46 @@
+# given and rectified bugs
+
+1. No PropTypes or TypeScript Validation. - now implemented
+2. Inconsistent State Management for
+// Problem: isOpen stores different string values instead of boolean - if multiple dropdowns opens at a time we can use set but now only one dropdown opens at a time.
+3. Massive Function with Multiple Responsibilities
+// Problem: handleSelect does too many things (70+ lines) - splited into separate funtions.
+4. Inefficient Recursive Operations in Render
+// Problem: Heavy computation in render cycle - now used useMemo for resolution
+5. Hard-coded strings everywhere
+// Problem: Hard-coded strings everywhere
+const isOpenForThis = isOpen === 'treeLine'; - have used CONSTANTS now.
+6. Deeply Nested Conditional Rendering
+// Problem: Unreadable nested ternary operators
+{(showStatus) ? (
+    status.map((s) => renderShowStatus(s, size, placement, variant))
+) : (showAllVariant) ? (
+    variant.map((v) => renderVariant(v, size, placement))
+) : (prefix) ? (
+    renderAffixes(placement, size, variant)
+) : // continues for 6 more conditions - have implemented render funtion in more readableway.
+7. Duplicate Code in Render Functions
+// Problem: Same JSX structure repeated 5+ times
+const renderVariant = (variantType, size, placement) => {
+    return (
+        <div className={`tree-select-container ${variantType}`}>
+            <div className={`tree-select-input ${size}`}> // Duplicated
+                {/* Same structure in renderShowStatus, renderTreeLine, etc. */} - removed duplications.
+8. Missing Key Props in Dynamic Lists - have used now.
+9. Hard-coded Class Names - removed.
+10. No Memoization for Expensive Computations
+// Problem: Heavy functions run on every render
+const getTopLevelSelected = (selectedValues, nodes) => { // Not memoized
+    // Complex recursive logic
+}; - used now usecallbacks.
+11. ErrorBoundary - handled in homePage.
+
+
+
+
+
+
+
 # Expand dropdown for components
 
 basic - expand all default
@@ -33,6 +76,11 @@ src/
 ├── app.jsx/
 |
 ├── app.css/
+
+
+# flatmap() - flattens the resulting array by one level.The flatMap() method in JavaScript is an Array method that combines the functionality of map() and flat() into a single operation.
+# When working with arrays containing nested arrays, flatMap() can simplify the process of accessing and transforming elements within those nested structures and then flattening them.
+# a Set() is a built-in object that allows you to store unique values of any type
 
 
 

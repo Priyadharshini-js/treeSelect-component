@@ -1,6 +1,8 @@
 import React from 'react'
 import TreeSelectBase from '../components/TreeSelect/TreeSelectBase';
 import { treeData } from '../components/config/treeData'
+import ErrorBoundary from '../components/TreeSelect/ErrorBoundary'
+
 
 const TreeSelect = () => {
 
@@ -74,16 +76,18 @@ const TreeSelect = () => {
                         <h4>Examples</h4>
                     </div>
                     <div className='tree-sections'>
-                        {props.map((item, index) => (
-                            <TreeSelectBase
-                                key={item.label}
-                                label={item.label}
-                                data={item.data}
-                                config={item.config}
-                                showAllPlacement={item.showAllPlacement}
-                                showAllVariant={item.showAllVariant}
-                                showStatus={item.showStatus}
-                            />
+                        {props.map((item) => (
+                            <ErrorBoundary key={item.label} name={item.label}>
+                                <TreeSelectBase
+                                    key={item.label}
+                                    label={item.label}
+                                    data={item.data}
+                                    config={item.config}
+                                    showAllPlacement={item.showAllPlacement}
+                                    showAllVariant={item.showAllVariant}
+                                    showStatus={item.showStatus}
+                                />
+                            </ErrorBoundary>
                         ))}
                     </div>
                 </div>

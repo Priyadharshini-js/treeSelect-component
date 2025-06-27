@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react'
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import TreeDropdown from './TreeDropdown'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -10,8 +10,11 @@ import {
     faPlusSquare,
     faMinusSquare
 } from '@fortawesome/free-solid-svg-icons'
-import { baseConfig } from '../config/treeSelectProps'
+import { baseConfig, treeSelectBasePropTypes } from '../config/treeSelectProps'
 
+const CONSTANTS = {
+    TREE_LINE: 'treeLine'
+}
 
 const TreeSelectBase = ({ config = {},
     label,
@@ -38,7 +41,7 @@ const TreeSelectBase = ({ config = {},
         size,
     } = mergedConfig;
 
-    const [isOpen, setIsOpen] = useState(null);
+    const [isOpen, setIsOpen] = useState(false);
     const [selected, setSelected] = useState(multiple ? [] : null);
     const [expandedNodes, setExpandedNodes] = useState(new Set());
     const [currentPlacement, setCurrentPlacement] = useState(placement[0]);
@@ -55,48 +58,49 @@ const TreeSelectBase = ({ config = {},
         'faMinusSquare': faMinusSquare
     }
 
+
     //function to render icon
-    const renderIcon = (type) => {
+    const renderIcon = useCallback((type) => {
         const icon = treeIcon[type];
         return icon ? <FontAwesomeIcon icon={icon} /> : null;
-    };
+    }, [treeIcon]);
 
     //function to toggle dropdown
-    const toggleDropdown = (id) => { //id for which dropdown to open
+    const toggleDropdown = useCallback((id) => {
         if (disabled) return;
 
         if (isOpen === id) {
-            setIsOpen(null); // close if already open
+            setIsOpen(false);
         } else {
-            if (treeDefaultExpandAll) { // if expand all is true
+            if (treeDefaultExpandAll) {
                 const allParentValues = new Set();
                 const findParents = (nodes) => {
                     nodes.forEach(node => {
                         if (node.children && node.children.length > 0) {
-                            allParentValues.add(node.value); // add parent value
-                            findParents(node.children); // find parent of children
+                            allParentValues.add(node.value);
+                            findParents(node.children);
                         }
                     });
                 };
-                findParents(treeDataSet); // find all parent values
-                setExpandedNodes(allParentValues); // set expanded nodes
+                findParents(treeDataSet);
+                setExpandedNodes(allParentValues);
             } else {
-                setExpandedNodes(new Set()); // reset expanded nodes
+                setExpandedNodes(new Set());
             }
-            setIsOpen(id); // open the clicked dropdown
+            setIsOpen(id);
         }
-    };
+    }, [disabled, isOpen, treeDefaultExpandAll, treeDataSet])
 
 
-    const togglePlacement = (pos) => {
-        setCurrentPlacement(pos);
-    }
+    const togglePlacement = useCallback((position) => {
+        setCurrentPlacement(position);
+    }, [])
 
     const parentMap = useMemo(() => {
         const map = new Map();
         const buildMap = (nodes, parent = null) => {
             nodes.forEach(node => {
-                if (parent) map.set(node.value, parent);
+                if (parent) map.set(node.value, parent); //full parent obj
                 if (node.children) buildMap(node.children, node);
             });
         };
@@ -105,13 +109,12 @@ const TreeSelectBase = ({ config = {},
     }, [treeDataSet]);
 
 
+    //collapses a tree structure by selecting only the parent nodes when all their children are selected
     const collapseSelectedWithParents = (selectedValues, nodes) => {
-        // Convert selected to Set for easier checking
         const selectedSet = new Set(selectedValues);
 
         const helper = (node) => {
             if (!node.children || node.children.length === 0) {
-                // Leaf node, return if selected or not
                 return selectedSet.has(node.value) ? [node.value] : [];
             }
 
@@ -135,7 +138,7 @@ const TreeSelectBase = ({ config = {},
         // Run for all root nodes and flatten
         const collapsed = nodes.flatMap(node => helper(node));
 
-        // Remove duplicates just in case
+
         return Array.from(new Set(collapsed));
     };
 
@@ -158,124 +161,156 @@ const TreeSelectBase = ({ config = {},
         return result;
     };
 
-    const handleSelect = (item) => {
-        if (!multiple) {
-            setSelected(item.value);
-            setIsOpen(false);
-            onChange?.(item.value);
-            return;
-        }
-
-        const collectAllChildValues = (node) => {
-            const values = [node.value];
-            if (node.children) {
-                node.children.forEach(child => {
-                    values.push(...collectAllChildValues(child));
-                });
-            }
-            return values;
-        };
-
-        if (treeCheckable) {
-            //multiple & checkable
-            const toggleWithChildren = (node) => {
-                setSelected(prev => {
-                    const selectedSet = new Set(prev);
-                    const value = node.value;
-
-                    if (selectedSet.has(value)) {
-                        // Deselect node and children
-                        const allValues = collectAllChildValues(node);
-                        allValues.forEach(val => selectedSet.delete(val));
-                    } else {
-                        // Add node and children
-                        const allValues = collectAllChildValues(node);
-                        allValues.forEach(val => selectedSet.add(val));
-                    }
-
-                    // Upward sync: Check parents
-                    let current = node;
-                    while (parentMap.has(current.value)) {
-                        const parent = parentMap.get(current.value);
-                        const allChildrenSelected = parent.children.every(child => selectedSet.has(child.value));
-
-                        if (allChildrenSelected) {
-                            selectedSet.add(parent.value);
-                        } else {
-                            selectedSet.delete(parent.value);
-                        }
-
-                        current = parent;
-                    }
-
-                    const finalSelected = Array.from(selectedSet);
-                    const topLevel = getTopLevelSelected(finalSelected, treeDataSet);
-
-                    // Disable remaining options if maxCount reached
-                    if (maxCount && topLevel.length >= maxCount) {
-                        const disabled = new Set();
-
-                        const markDisabled = (nodes) => {
-                            nodes.forEach(n => {
-                                if (!topLevel.includes(n.value)) {
-                                    disabled.add(n.value);
-                                    if (n.children) markDisabled(n.children);
-                                }
-                            });
-                        };
-
-                        markDisabled(treeDataSet);
-                        setDisabledValues(disabled);
-                    } else {
-                        setDisabledValues(new Set());
-                    }
-                    onChange?.(finalSelected);
-                    return finalSelected;
-                });
-            };
-            toggleWithChildren(item);
-        } else {
-            //if multiple but not checkable
-            setSelected(prev => {
-                const updated = prev.includes(item.value) // check if item is already selected
-                    ? prev.filter(val => val !== item.value) // remove item
-                    : [...prev, item.value]; // add item
-                onChange?.(updated);
-                return updated;
+    // Helper: Collect all child values recursively
+    const collectAllChildValues = (node) => {
+        const values = [node.value];
+        if (node.children) {
+            node.children.forEach(child => {
+                values.push(...collectAllChildValues(child));
             });
         }
+        return values;
     };
 
-    // handle expand collapse
-    const handleExpandCollapse = (value) => {
-        setExpandedNodes(prev => { // copy the previous expanded nodes
-            const newSet = new Set(prev);
-            if (newSet.has(value)) {
-                newSet.delete(value); // collapse it if already expanded, removes the node from the set
+    // Helper: Mark disabled nodes if maxCount is reached
+    const markDisabledNodes = (treeDataSet, topLevel, setDisabledValues) => {
+        const disabled = new Set();
+        const markDisabled = (nodes) => {
+            nodes.forEach(n => {
+                if (!topLevel.includes(n.value)) {
+                    disabled.add(n.value);
+                    if (n.children) markDisabled(n.children);
+                }
+            });
+        };
+        markDisabled(treeDataSet);
+        setDisabledValues(disabled);
+    };
+
+    // Multiple & checkable selection logic
+    const handleMultipleCheckable = (item, {
+        setSelected,
+        parentMap,
+        getTopLevelSelected,
+        treeDataSet,
+        maxCount,
+        setDisabledValues,
+        onChange
+    }) => {
+        setSelected(prev => {
+            const selectedSet = new Set(prev);
+            const value = item.value;
+
+            if (selectedSet.has(value)) {
+                // Deselect node and children
+                collectAllChildValues(item).forEach(val => selectedSet.delete(val));
             } else {
-                newSet.add(value); // expand it otherwise
+                // Add node and children
+                collectAllChildValues(item).forEach(val => selectedSet.add(val));
             }
-            return newSet; // update the state with the new set
+
+            let current = item;
+            while (parentMap.has(current.value)) {
+                const parent = parentMap.get(current.value);
+                const allChildrenSelected = parent.children.every(child => selectedSet.has(child.value));
+                if (allChildrenSelected) {
+                    selectedSet.add(parent.value);
+                } else {
+                    selectedSet.delete(parent.value);
+                }
+                current = parent;
+            }
+
+            const finalSelected = Array.from(selectedSet);
+            const topLevel = getTopLevelSelected(finalSelected, treeDataSet);
+
+            // Disable remaining options if maxCount reached
+            if (maxCount && topLevel.length >= maxCount) {
+                markDisabledNodes(treeDataSet, topLevel, setDisabledValues);
+            } else {
+                setDisabledValues(new Set());
+            }
+            onChange?.(finalSelected);
+            return finalSelected;
         });
     };
 
+    // Multiple but not checkable
+    const handleMultiple = (item, setSelected, onChange) => {
+        setSelected(prev => {
+            const updated = prev.includes(item.value)
+                ? prev.filter(val => val !== item.value)
+                : [...prev, item.value];
+            onChange?.(updated);
+            return updated;
+        });
+    };
+
+    // Single selection
+    const handleSingle = (item, setSelected, setIsOpen, onChange) => {
+        setSelected(item.value);
+        setIsOpen(false);
+        onChange?.(item.value);
+    };
+
+    // funtion for handleselect handler
+    const handleSelect = useCallback((item) => {
+        if (!multiple) {
+            handleSingle(item, setSelected, setIsOpen, onChange);
+        } else if (treeCheckable) {
+            handleMultipleCheckable(item, {
+                setSelected,
+                parentMap,
+                getTopLevelSelected,
+                treeDataSet,
+                maxCount,
+                setDisabledValues,
+                onChange
+            });
+        } else {
+            handleMultiple(item, setSelected, onChange);
+        }
+    }, [
+        multiple,
+        treeCheckable,
+        onChange,
+        parentMap,
+        getTopLevelSelected,
+        treeDataSet,
+        maxCount,
+    ]);
+
+
+    // handle expand collapse
+    const handleExpandCollapse = useCallback((value) => {
+        setExpandedNodes(prev => { // copy the previous expanded nodes
+            const newSet = new Set(prev);
+            if (newSet.has(value)) {
+                newSet.delete(value);
+            } else {
+                newSet.add(value);
+            }
+            return newSet;
+        });
+    }, [])
+
     //handle outside click
-    const handleClickOutside = (e) => {
+    const handleClickOutside = useCallback((e) => {
         if (containerRef.current && !containerRef.current.contains(e.target)) {
             setIsOpen(false);
         }
-    };
+    }, [])
 
     useEffect(() => {
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+    }, [handleClickOutside]);
 
     // Flatten all levels to match selected values with their titles.
     const flattenData = (nodes) => {
-        return nodes.flatMap(node => { // flatten - combination of map and flat, which gives a flat single array
+        return nodes.flatMap(node => {
             const children = node.children ? flattenData(node.children) : [];
-            return [node, ...children]; // return node and children
+            return [node, ...children];
         });
     };
 
@@ -284,137 +319,71 @@ const TreeSelectBase = ({ config = {},
 
 
     // selected mmulitple or single
-    const collapsedSelected = multiple && treeCheckable
-        ? collapseSelectedWithParents(selected, treeDataSet)
-        : selected;
+    const collapsedSelected = useMemo(() => (
+        multiple && treeCheckable
+            ? collapseSelectedWithParents(selected, treeDataSet)
+            : selected
+    ), [multiple, treeCheckable, selected, treeDataSet]);
 
-    const selectedLabel = multiple // Multiple
-        ? collapsedSelected.map(value => {
-            const item = flatData.find(i => i.value === value); //why flatData find, becz flatData is already flattened(having children)
-            return (
-                <span key={value} className="selected-pill">
-                    {item?.title}
-                    <span
-                        className="remove-pill ms-2"
-                        onClick={(e) => {
-                            e.stopPropagation(); // prevent dropdown toggle
-                            if (item) {
-                                handleSelect(item);  // Toggle selection properly
-                            }
-                        }}
-                    >
-                        ×
+    const selectedLabel = useMemo(() => {
+        if (multiple) {
+            return collapsedSelected.map(value => {
+                const item = flatData.find(i => i.value === value);
+                return (
+                    <span key={value} className="selected-pill">
+                        {item?.title}
+                        <span
+                            className="remove-pill ms-2"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (item) {
+                                    handleSelect(item);
+                                }
+                            }}
+                        >
+                            ×
+                        </span>
                     </span>
-                </span>
-            );
-        })
-        : flatData.find(item => item.value === selected)?.title || placeholder; // Find the selected item (not multiple, single) and display its title
+                );
+            });
+        }
+        return flatData.find(item => item.value === selected)?.title || placeholder;
+    }, [multiple, collapsedSelected, flatData, selected, placeholder, handleSelect]);
+
 
     const isPlaceholderVisible =
         (!multiple && !selected) || (multiple && selected.length === 0);
 
 
-    //variant type [borderless, filled, outlined, underlined]
-    const renderVariant = (variantType, size, placement, status) => {
-        const isOpenForThis = isOpen === variantType;
-        return (
-            <div
-                ref={containerRef}
-                key={variantType}
-                className={`tree-select-container ${variantType} ${status} ${disabled ? 'disabled' : ''}`}
-            >
-                <div
-                    className={`tree-select-input ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
-                    onClick={() => toggleDropdown(variantType)}
-                >
-                    <div className="selected-content">
-                        {isPlaceholderVisible ? placeholder : selectedLabel}
-                    </div>
-                    <span className="arrow font-icons">
-                        {isOpenForThis ? renderIcon('faSearch') : renderIcon('faAngleDown')}
-                    </span>
-                </div>
-                {isOpenForThis && (
-                    <div className={`dropdown-placement ${placement}`}>
-                        <TreeDropdown
-                            data={treeDataSet}
-                            selected={selected}
-                            onSelect={handleSelect}
-                            multiple={multiple}
-                            treeIcon={treeIcon}
-                            renderIcon={renderIcon}
-                            treeCheckable={treeCheckable}
-                            expandedNodes={expandedNodes}
-                            handleExpandCollapse={handleExpandCollapse}
-                            disabledValues={disabledValues}
-                            treeLine={treeLine}
-                        />
-                    </div>
-                )}
-            </div >
-        )
-    };
-
-    //status type [ error, warning]
-    const renderShowStatus = (statusType, size, placement, variant) => {
-        const isOpenForThis = isOpen === statusType;
-        return (
-            <div
-                ref={containerRef}
-                key={statusType}
-                className={`tree-select-container ${statusType} ${variant} ${disabled ? 'disabled' : ''}`}
-            >
-                <div
-                    className={`tree-select-input  ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
-                    onClick={() => toggleDropdown(statusType)}
-                >
-                    <div className="selected-content">
-                        {isPlaceholderVisible ? placeholder : selectedLabel}
-                    </div>
-                    <span className="arrow font-icons">
-                        {isOpenForThis ? renderIcon('faSearch') : renderIcon('faAngleDown')}
-                    </span>
-                </div>
-                {isOpenForThis && (
-                    <div className={`dropdown-placement ${placement}`}>
-                        <TreeDropdown
-                            data={treeDataSet}
-                            selected={selected}
-                            onSelect={handleSelect}
-                            multiple={multiple}
-                            treeIcon={treeIcon}
-                            renderIcon={renderIcon}
-                            treeCheckable={treeCheckable}
-                            expandedNodes={expandedNodes}
-                            handleExpandCollapse={handleExpandCollapse}
-                            treeLine={treeLine}
-                        />
-                    </div>
-                )}
-            </div>
-        )
-    };
-
-    // render prefix
-    const renderAffixes = (placement, size, variant, status) => (
+    //common dropdown render
+    const renderDropdown = ({
+        isOpenForThis,
+        containerClass,
+        inputClass,
+        onInputClick,
+        selectedContent,
+        arrowIcon,
+        dropdownClass,
+        showDropdown = true,
+        disabledValues = undefined
+    }) => (
         <div
             ref={containerRef}
-            className={`tree-select-container ${variant} ${status} ${disabled ? 'disabled' : ''}`}
+            className={containerClass}
         >
             <div
-                className={`tree-select-input ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
-                onClick={toggleDropdown}
+                className={inputClass}
+                onClick={onInputClick}
             >
                 <div className="selected-content">
-                    {isPlaceholderVisible ? placeholder : selectedLabel}
+                    {selectedContent}
                 </div>
                 <span className="arrow font-icons">
-                    {isOpen ? renderIcon('faSearch') : renderIcon('faAngleDown')}
+                    {arrowIcon}
                 </span>
             </div>
-
-            {isOpen && (
-                <div className={`dropdown-placement ${placement}`}>
+            {isOpenForThis && showDropdown && (
+                <div className={dropdownClass}>
                     <TreeDropdown
                         data={treeDataSet}
                         selected={selected}
@@ -425,83 +394,118 @@ const TreeSelectBase = ({ config = {},
                         treeCheckable={treeCheckable}
                         expandedNodes={expandedNodes}
                         handleExpandCollapse={handleExpandCollapse}
+                        disabledValues={disabledValues}
                         treeLine={treeLine}
                     />
                 </div>
             )}
+        </div >
 
-            <input
-                type="text"
-                className={`mt-2 tree-select-input ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''} `}
-                onClick={toggleDropdown}
-                readOnly
-                value={`Prefix: ${isPlaceholderVisible
-                    ? ''
-                    : multiple
-                        ? selected
-                            .map(value => flatData.find(i => i.value === value)?.title)
-                            .filter(Boolean)
-                            .join(', ')
-                        : flatData.find(i => i.value === selected)?.title || ''
-                    }`}
-            />
-        </div>
     );
 
-    // placement type [topright, topleft, bottomleft, bottomright]
-    const renderPlacement = (placementType, variant, size, status) => (
-        <>
-            <div className='toggle-placement'>
-                {placement.map(p => (
-                    <div
-                        key={p}
-                        onClick={() => togglePlacement(p)}
-                        className={currentPlacement === p ? 'active' : ''}
-                    >
-                        {p}
-                    </div>
-                ))}
-            </div>
+
+    //variant dropdown
+    const renderVariant = (variantType, size, placement, status) => {
+        const isOpenForThis = isOpen === variantType;
+        return renderDropdown(
+            {
+                isOpenForThis,
+                containerClass: `tree-select-container ${variantType} ${status} ${disabled ? 'disabled' : ''}`,
+                inputClass: `tree-select-input ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''}`,
+                onInputClick: () => toggleDropdown(variantType),
+                selectedContent: isPlaceholderVisible ? placeholder : selectedLabel,
+                arrowIcon: isOpenForThis ? renderIcon('faSearch') : renderIcon('faAngleDown'),
+                dropdownClass: `dropdown-placement ${placement}`,
+                disabledValues
+            }
+        )
+    };
+
+    // Status dropdown
+    const renderShowStatus = (statusType, size, placement, variant) => {
+        const isOpenForThis = isOpen === statusType;
+        return renderDropdown({
+            isOpenForThis,
+            containerClass: `tree-select-container ${statusType} ${variant} ${disabled ? 'disabled' : ''}`,
+            inputClass: `tree-select-input ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''}`,
+            onInputClick: () => toggleDropdown(statusType),
+            selectedContent: isPlaceholderVisible ? placeholder : selectedLabel,
+            arrowIcon: isOpenForThis ? renderIcon('faSearch') : renderIcon('faAngleDown'),
+            dropdownClass: `dropdown-placement ${placement}`,
+            disabledValues
+        });
+    };
+
+    // Prefix/affix dropdown
+    const renderAffixes = (placement, size, variant, status) => {
+        const isOpenForThis = isOpen;
+        return (
             <div
                 ref={containerRef}
-                key={placementType}
                 className={`tree-select-container ${variant} ${status} ${disabled ? 'disabled' : ''}`}
             >
-                <div
-                    className={`tree-select-input ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
+                {renderDropdown({
+                    isOpenForThis,
+                    containerClass: '', // Already set above
+                    inputClass: `tree-select-input ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''}`,
+                    onInputClick: toggleDropdown,
+                    selectedContent: isPlaceholderVisible ? placeholder : selectedLabel,
+                    arrowIcon: isOpenForThis ? renderIcon('faSearch') : renderIcon('faAngleDown'),
+                    dropdownClass: `dropdown-placement ${placement}`,
+                    disabledValues
+                })}
+                <input
+                    type="text"
+                    className={`mt-2 tree-select-input ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''} `}
                     onClick={toggleDropdown}
-                >
-                    <div className="selected-content">
-                        {isPlaceholderVisible ? placeholder : selectedLabel}
-                    </div>
-                    <span className="arrow font-icons">
-                        {isOpen ? renderIcon('faSearch') : renderIcon('faAngleDown')}
-                    </span>
-                </div>
-                {isOpen && (
-                    <div className={`dropdown-placement ${currentPlacement}`}>
-                        <TreeDropdown
-                            data={treeDataSet}
-                            selected={selected}
-                            onSelect={handleSelect}
-                            multiple={multiple}
-                            treeIcon={treeIcon}
-                            renderIcon={renderIcon}
-                            treeCheckable={treeCheckable}
-                            expandedNodes={expandedNodes}
-                            handleExpandCollapse={handleExpandCollapse}
-                            treeLine={treeLine}
-
-                        />
-                    </div>
-                )}
+                    readOnly
+                    value={`Prefix: ${isPlaceholderVisible
+                        ? ''
+                        : multiple
+                            ? selected
+                                .map(value => flatData.find(i => i.value === value)?.title)
+                                .filter(Boolean)
+                                .join(', ')
+                            : flatData.find(i => i.value === selected)?.title || ''
+                        }`}
+                />
             </div>
-        </>
-    )
+        );
+    };
 
-    // tree line (show tree line)
+    // Placement dropdown
+    const renderPlacement = (placementType, variant, size, status) => {
+        const isOpenForThis = isOpen;
+        return (
+            <>
+                <div className='toggle-placement'>
+                    {placement.map(p => (
+                        <div
+                            key={p}
+                            onClick={() => togglePlacement(p)}
+                            className={currentPlacement === p ? 'active' : ''}
+                        >
+                            {p}
+                        </div>
+                    ))}
+                </div>
+                {renderDropdown({
+                    isOpenForThis,
+                    containerClass: `tree-select-container ${variant} ${status} ${disabled ? 'disabled' : ''}`,
+                    inputClass: `tree-select-input ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''}`,
+                    onInputClick: toggleDropdown,
+                    selectedContent: isPlaceholderVisible ? placeholder : selectedLabel,
+                    arrowIcon: isOpenForThis ? renderIcon('faSearch') : renderIcon('faAngleDown'),
+                    dropdownClass: `dropdown-placement ${currentPlacement}`,
+                    disabledValues
+                })}
+            </>
+        );
+    };
+
+    // Tree line dropdown
     const renderTreeLine = (variant, size, placement, status) => {
-        const isOpenForThis = isOpen === 'treeLine';
+        const isOpenForThis = isOpen === CONSTANTS.TREE_LINE;
         return (
             <>
                 <div className='tree-line-wrapper row row-10'>
@@ -533,68 +537,68 @@ const TreeSelectBase = ({ config = {},
                         </div>
                     </div>
                 </div>
-                < div
-                    ref={containerRef}
-                    className={`tree-select-container ${variant} ${status} ${disabled ? 'disabled' : ''}`
-                    }
-                >
-                    <div
-                        className={`tree-select-input ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''}`}
-                        onClick={() => toggleDropdown('treeLine')}
-                    >
-                        <div className="selected-content">
-                            {isPlaceholderVisible ? placeholder : selectedLabel}
-                        </div>
-                        <span className="arrow font-icons">
-                            {isOpenForThis ? renderIcon('faSearch') : renderIcon('faAngleDown')}
-                        </span>
-                    </div>
-                    {
-                        isOpenForThis && (
-                            <div className={`dropdown-placement ${placement}`}>
-                                <TreeDropdown
-                                    data={treeDataSet}
-                                    selected={selected}
-                                    onSelect={handleSelect}
-                                    multiple={multiple}
-                                    treeIcon={treeIcon}
-                                    renderIcon={renderIcon}
-                                    treeCheckable={treeCheckable}
-                                    expandedNodes={expandedNodes}
-                                    handleExpandCollapse={handleExpandCollapse}
-                                    disabledValues={disabledValues}
-                                    treeLine={treeLine}
-                                />
-                            </div>
-                        )
-                    }
-
-                </div >
+                {renderDropdown({
+                    isOpenForThis,
+                    containerClass: `tree-select-container ${variant} ${status} ${disabled ? 'disabled' : ''}`,
+                    inputClass: `tree-select-input ${size} ${isPlaceholderVisible ? 'placeholder-color' : ''}`,
+                    onInputClick: () => toggleDropdown(CONSTANTS.TREE_LINE),
+                    selectedContent: isPlaceholderVisible ? placeholder : selectedLabel,
+                    arrowIcon: isOpenForThis ? renderIcon('faSearch') : renderIcon('faAngleDown'),
+                    dropdownClass: `dropdown-placement ${placement}`,
+                    disabledValues
+                })}
             </>
-        )
-    }
+        );
+    };
 
+    // Array of render modes with their conditions and renderers
+    const renderModes = [
+        {
+            condition: showStatus && Array.isArray(status),
+            render: () => status.map((s, index) => (
+                <div key={index}>
+                    {renderShowStatus(s, size, placement, variant)}
+                </div>
+            ))
+        },
+        {
+            condition: showAllVariant && Array.isArray(variant),
+            render: () => variant.map((v, index) => (
+                <div key={index}>
+                    {renderVariant(v, size, placement, status)}
+                </div>
+            ))
+        },
+        {
+            condition: prefix,
+            render: () => renderAffixes(placement, size, variant, status),
+        },
+        {
+            condition: showAllPlacement,
+            render: () => renderPlacement(currentPlacement, variant, size, status),
+        },
+        {
+            condition: treeLine,
+            render: () => renderTreeLine(variant, size, placement, status),
+        },
+        {
+            condition: true,
+            render: () => renderVariant(variant, size, placement, status),
+        },
+    ];
+
+    const renderContent = renderModes.find(mode => mode.condition).render();
 
     return (
         <div className='card-section'>
             <div className='card-body'>
                 <p>{label}</p>
-                {(showStatus) ? (
-                    status.map((s) => renderShowStatus(s, size, placement, variant, status))
-                ) : (showAllVariant) ? (
-                    variant.map((v) => renderVariant(v, size, placement, status))
-                ) : (prefix) ? (
-                    renderAffixes(placement, size, variant, status)
-                ) : (showAllPlacement) ? (
-                    renderPlacement(currentPlacement, variant, size, status)
-                ) : (treeLine) ? (
-                    renderTreeLine(variant, size, placement, status)
-                ) : (
-                    renderVariant(variant, size, placement, status)
-                )}
+                {renderContent}
             </div>
         </div>
     );
 };
 
 export default TreeSelectBase;
+
+TreeSelectBase.propTypes = treeSelectBasePropTypes;
