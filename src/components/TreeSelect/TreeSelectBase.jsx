@@ -294,17 +294,19 @@ const TreeSelectBase = ({ config = {},
         });
     }, [])
 
-    //handle outside click
-    const handleClickOutside = useCallback((e) => {
-        if (containerRef.current && !containerRef.current.contains(e.target)) {
-            setIsOpen(false);
-        }
-    }, [])
-
+    //useEffect
     useEffect(() => {
+        //handle outside click
+        const handleClickOutside = (e) => {
+            if (containerRef.current && !containerRef.current.contains(e.target)) {
+                setIsOpen(false);
+            }
+        };
+
         document.addEventListener('mousedown', handleClickOutside);
+
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [handleClickOutside]);
+    }, [containerRef]);
 
     // Flatten all levels to match selected values with their titles.
     const flattenData = (nodes) => {
